@@ -22,6 +22,9 @@ function Review() {
   const [error, setError] = useState("");
 
   const [previewPdfPath, setPreviewPdfPath] = useState(null);
+  const [feedback, setFeedback] = useState("");
+  const [modalError, setModalError] = useState("");
+  const [saving, setSaving] = useState(false);
 
 
   // =====================================================
@@ -96,6 +99,8 @@ function Review() {
 
     try {
 
+      setError("");
+      setModalError("");
       const { facultyId, facultyName } = getFacultyInfo();
 
       const response = await axios.get(
@@ -114,6 +119,7 @@ function Review() {
       );
 
       setSelectedProposal(response.data);
+      setFeedback(response.data.comments || "");
 
     } catch (error) {
 
@@ -132,54 +138,65 @@ function Review() {
   // UPDATE PROPOSAL STATUS
   // =====================================================
 
- const handleStatusChange = async (
-  reviewProposalId,
-  status
-) => {
-  try {
-    const { facultyId, facultyName } = getFacultyInfo();
+  const handleStatusChange = async (
+    reviewProposalId,
+    status
+  ) => {
+    if (status === "CHANGES_REQUESTED" && (!feedback || !feedback.trim())) {
+      setModalError("Please write the requested changes in the feedback box below before submitting.");
+      return;
+    }
 
-    const response = await axios.put(
-      `${API_URL}/${reviewProposalId}/status`,
-      {
-        status: status,
-      },
-      {
-        params: {
-          facultyId: facultyId || undefined,
-          facultyName: facultyName || undefined,
+    try {
+      setSaving(true);
+      setError("");
+      setModalError("");
+      const { facultyId, facultyName } = getFacultyInfo();
+
+      const response = await axios.put(
+        `${API_URL}/${reviewProposalId}/status`,
+        {
+          status: status,
+          comments: feedback ? feedback.trim() : "",
+        },
+        {
+          params: {
+            facultyId: facultyId || undefined,
+            facultyName: facultyName || undefined,
+          }
         }
-      }
-    );
+      );
 
-    console.log("Updated proposal:", response.data);
+      console.log("Updated proposal:", response.data);
 
-    // Update proposal in the cards
-    setProposals((previousProposals) =>
-      previousProposals.map((proposal) =>
-        proposal.reviewProposalId ===
-        response.data.reviewProposalId
-          ? response.data
-          : proposal
-      )
-    );
+      // Update proposal in the cards
+      setProposals((previousProposals) =>
+        previousProposals.map((proposal) =>
+          proposal.reviewProposalId ===
+          response.data.reviewProposalId
+            ? response.data
+            : proposal
+        )
+      );
 
-    // Close the modal automatically
-    setSelectedProposal(null);
+      // Close the modal automatically
+      setSelectedProposal(null);
+      setFeedback("");
 
-  } catch (error) {
-    console.error(
-      "Error updating proposal status:",
-      error
-    );
+    } catch (error) {
+      console.error(
+        "Error updating proposal status:",
+        error
+      );
 
-    // No popup
-    setError(
-      error.response?.data?.message ||
-      "Unable to update proposal status."
-    );
-  }
-};
+      setError(
+        error.response?.data?.message ||
+        "Unable to update proposal status."
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
 
 
   // =====================================================
@@ -453,334 +470,240 @@ function Review() {
 
 
       {/* =================================================
-          PROPOSAL MODAL
+          PROPOSAL REVIEW MODAL
       ================================================== */}
 
       {selectedProposal && (
+        <div className="proposal-modal-overlay" onClick={() => setSelectedProposal(null)}>
+          <div className="proposal-modal-card" onClick={(e) => e.stopPropagation()}>
 
-        <div className="modal-overlay">
-
-          <div className="proposal-modal">
-
-
-            {/* =========================================
-                TITLE
-            ========================================== */}
-
-            <h2>
-              {selectedProposal.projectTitle}
-            </h2>
-
-
-            {/* =========================================
-                STUDENT
-            ========================================== */}
-
-            <p>
-
-              <strong>
-                Student :
-              </strong>{" "}
-
-              {selectedProposal.studentId}
-
-            </p>
-
-
-            {/* =========================================
-                DOMAIN
-            ========================================== */}
-
-            <p>
-
-              <strong>
-                Domain :
-              </strong>{" "}
-
-              {selectedProposal.projectDomain}
-
-            </p>
-
-
-            {/* =========================================
-                TECHNOLOGY
-            ========================================== */}
-
-            <p>
-
-              <strong>
-                Technology :
-              </strong>{" "}
-
-              {selectedProposal.technologyStack}
-
-            </p>
-
-
-            {/* =========================================
-                OTHER TECHNOLOGY
-            ========================================== */}
-
-            {selectedProposal.otherTechnology && (
-
-              <p>
-
-                <strong>
-                  Other Technology :
-                </strong>{" "}
-
-                {selectedProposal.otherTechnology}
-
-              </p>
-
-            )}
-
-
-            {/* =========================================
-                MEMBER 2
-            ========================================== */}
-
-            {selectedProposal.member2Name && (
-
-              <p>
-
-                <strong>
-                  Member 2 :
-                </strong>{" "}
-
-                {selectedProposal.member2Name}
-
-                {selectedProposal.member2Enrollment &&
-                  ` (${selectedProposal.member2Enrollment})`
-                }
-
-              </p>
-
-            )}
-
-
-            {/* =========================================
-                MEMBER 3
-            ========================================== */}
-
-            {selectedProposal.member3Name && (
-
-              <p>
-
-                <strong>
-                  Member 3 :
-                </strong>{" "}
-
-                {selectedProposal.member3Name}
-
-                {selectedProposal.member3Enrollment &&
-                  ` (${selectedProposal.member3Enrollment})`
-                }
-
-              </p>
-
-            )}
-
-
-            {/* =========================================
-                PROJECT DESCRIPTION
-            ========================================== */}
-
-            <p>
-
-              <strong>
-                Project Description :
-              </strong>
-
-            </p>
-
-
-            <p>
-              {selectedProposal.projectDescription}
-            </p>
-
-
-            {/* =========================================
-                PROPOSAL FILE
-            ========================================== */}
-
-            <div style={{ margin: "14px 0", padding: "12px", background: "#f8fafc", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px" }}>
-                <div>
-                  <strong>Proposal File:</strong>{" "}
-                  <span style={{ color: "#475569", wordBreak: "break-all" }}>
-                    {selectedProposal.proposalFile ? selectedProposal.proposalFile.split("/").pop() : "No file attached"}
-                  </span>
-                </div>
-                {selectedProposal.proposalFile && (
-                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                    <button
-                      type="button"
-                      style={{
-                        padding: "6px 12px",
-                        background: "#2563eb",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: "6px",
-                        cursor: "pointer",
-                        fontSize: "13px",
-                        fontWeight: "600",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "5px"
-                      }}
-                      onClick={() => setPreviewPdfPath(selectedProposal.proposalFile)}
-                    >
-                      📄 View Proposal PDF
-                    </button>
-                    <a
-                      href={`http://localhost:8081/api/files/download?path=${encodeURIComponent(selectedProposal.proposalFile)}&facultyId=${getFacultyInfo().facultyId}&facultyName=${encodeURIComponent(getFacultyInfo().facultyName)}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{
-                        padding: "6px 12px",
-                        background: "#059669",
-                        color: "#fff",
-                        textDecoration: "none",
-                        borderRadius: "6px",
-                        fontSize: "13px",
-                        fontWeight: "600",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "5px"
-                      }}
-                    >
-                      ⬇ Download PDF
-                    </a>
-                  </div>
-                )}
+            {/* Modal Header */}
+            <div className="proposal-modal-header">
+              <div>
+                <h2>{selectedProposal.projectTitle}</h2>
+                <p>Project Proposal Review</p>
               </div>
+              <button
+                type="button"
+                className="modal-x-btn"
+                onClick={() => setSelectedProposal(null)}
+                disabled={saving}
+                title="Close"
+              >
+                ×
+              </button>
             </div>
 
+            {/* Modal Scrollable Body */}
+            <div className="proposal-modal-body">
 
-            {/* =========================================
-                CURRENT STATUS
-            ========================================== */}
+              {/* Quick Info Grid (Rectangular Stat Cards) */}
+              <div className="proposal-meta-grid">
+                <div className="meta-card">
+                  <span className="meta-label">Student ID</span>
+                  <strong className="meta-value">{selectedProposal.studentId}</strong>
+                </div>
 
-            <p>
+                <div className="meta-card">
+                  <span className="meta-label">Domain</span>
+                  <strong className="meta-value">{selectedProposal.projectDomain || "-"}</strong>
+                </div>
 
-              <strong>
-                Current Status :
-              </strong>{" "}
+                <div className="meta-card">
+                  <span className="meta-label">Technology Stack</span>
+                  <div className="tech-tags-wrap">
+                    {selectedProposal.technologyStack ? (
+                      selectedProposal.technologyStack.split(",").map((tech, i) => (
+                        <span key={i} className="tech-tag-pill">{tech.trim()}</span>
+                      ))
+                    ) : (
+                      "-"
+                    )}
+                    {selectedProposal.otherTechnology && (
+                      <span className="tech-tag-pill other-tech">{selectedProposal.otherTechnology}</span>
+                    )}
+                  </div>
+                </div>
 
-              <span
-                className={`status ${selectedProposal.status
-                  ?.toLowerCase()
-                  .replace("_", "-")}`}
-              >
+                <div className="meta-card">
+                  <span className="meta-label">Current Status</span>
+                  <div>
+                    <span className={`status-pill ${
+                      selectedProposal.status === "APPROVED"
+                        ? "status-approved"
+                        : selectedProposal.status === "REJECTED"
+                        ? "status-rejected"
+                        : selectedProposal.status === "CHANGES_REQUESTED"
+                        ? "status-changes"
+                        : "status-pending"
+                    }`}>
+                      {selectedProposal.status === "CHANGES_REQUESTED"
+                        ? "Changes Requested"
+                        : selectedProposal.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
 
-                {selectedProposal.status ===
-                "CHANGES_REQUESTED"
-                  ? "Request Changes"
-                  : selectedProposal.status}
+              {/* Team Members if present */}
+              {(selectedProposal.member2Name || selectedProposal.member3Name) && (
+                <div className="proposal-detail-section">
+                  <div className="section-label">Team Members</div>
+                  <div className="members-box">
+                    {selectedProposal.member2Name && (
+                      <div className="member-row">
+                        <span className="member-badge">Member 2</span>
+                        <strong>{selectedProposal.member2Name}</strong>
+                        {selectedProposal.member2Enrollment && (
+                          <span className="enroll-badge">({selectedProposal.member2Enrollment})</span>
+                        )}
+                      </div>
+                    )}
+                    {selectedProposal.member3Name && (
+                      <div className="member-row">
+                        <span className="member-badge">Member 3</span>
+                        <strong>{selectedProposal.member3Name}</strong>
+                        {selectedProposal.member3Enrollment && (
+                          <span className="enroll-badge">({selectedProposal.member3Enrollment})</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
-              </span>
+              {/* Project Description */}
+              <div className="proposal-detail-section">
+                <div className="section-label">Project Description</div>
+                <div className="proposal-content-box description-box">
+                  {selectedProposal.projectDescription || "No description provided."}
+                </div>
+              </div>
 
-            </p>
+              {/* Proposal Document */}
+              <div className="proposal-detail-section">
+                <div className="section-label">Proposal Document (PDF)</div>
+                <div className="proposal-content-box">
+                  <div className="file-box-inner">
+                    <div className="file-info-col">
+                      <span style={{ fontSize: "18px" }}>📄</span>
+                      <span>
+                        {selectedProposal.proposalFile
+                          ? selectedProposal.proposalFile.split("/").pop().split("\\").pop()
+                          : "No file attached"}
+                      </span>
+                    </div>
 
+                    {selectedProposal.proposalFile && (
+                      <div className="file-action-buttons">
+                        <button
+                          type="button"
+                          className="btn-view-pdf"
+                          onClick={() => setPreviewPdfPath(selectedProposal.proposalFile)}
+                        >
+                          👁 View Proposal PDF
+                        </button>
+                        <a
+                          href={`http://localhost:8081/api/files/download?path=${encodeURIComponent(
+                            selectedProposal.proposalFile
+                          )}&facultyId=${getFacultyInfo().facultyId}&facultyName=${encodeURIComponent(
+                            getFacultyInfo().facultyName
+                          )}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="btn-download-pdf"
+                        >
+                          ⬇ Download PDF
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
 
-            {/* =================================================
-                ACTION BUTTONS
-            ================================================== */}
+              {/* Faculty Feedback & Requested Changes Textbox */}
+              <div className="proposal-detail-section">
+                <div className="section-label">
+                  Faculty Feedback & Requested Changes{" "}
+                  <span className="feedback-hint">(Required when clicking "Request Changes")</span>
+                </div>
+                {modalError && (
+                  <div style={{ padding: "10px 14px", background: "#fee2e2", border: "1px solid #fca5a5", borderRadius: "8px", color: "#991b1b", fontSize: "13.5px", fontWeight: "600", display: "flex", alignItems: "center", gap: "8px" }}>
+                    <span>⚠️</span>
+                    <span>{modalError}</span>
+                  </div>
+                )}
+                <textarea
+                  className="proposal-feedback-textarea"
+                  placeholder="Write your feedback or specific changes required for the student..."
+                  value={feedback}
+                  onChange={(e) => {
+                    setFeedback(e.target.value);
+                    if (modalError) setModalError("");
+                  }}
+                  disabled={saving}
+                  rows={4}
+                />
+              </div>
 
-            <div className="modal-buttons">
+            </div>
 
-
-              {/* =============================================
-                  APPROVE
-              ============================================== */}
-
+            {/* Modal Sticky Footer */}
+            <div className="proposal-modal-footer">
               <button
-                className="approve"
+                type="button"
+                className="btn-approve"
                 onClick={() =>
                   handleStatusChange(
                     selectedProposal.reviewProposalId,
                     "APPROVED"
                   )
                 }
-                disabled={
-                  selectedProposal.status ===
-                  "APPROVED"
-                }
+                disabled={saving || selectedProposal.status === "APPROVED"}
               >
-
-                Approve
-
+                ✓ Approve
               </button>
 
-
-              {/* =============================================
-                  REJECT
-              ============================================== */}
-
               <button
-                className="reject"
+                type="button"
+                className="btn-reject"
                 onClick={() =>
                   handleStatusChange(
                     selectedProposal.reviewProposalId,
                     "REJECTED"
                   )
                 }
-                disabled={
-                  selectedProposal.status ===
-                  "REJECTED"
-                }
+                disabled={saving || selectedProposal.status === "REJECTED"}
               >
-
-                Reject
-
+                ✕ Reject
               </button>
 
-
-              {/* =============================================
-                  REQUEST CHANGES
-              ============================================== */}
-
               <button
-                className="changes"
+                type="button"
+                className="btn-request-changes"
                 onClick={() =>
                   handleStatusChange(
                     selectedProposal.reviewProposalId,
                     "CHANGES_REQUESTED"
                   )
                 }
-                disabled={
-                  selectedProposal.status ===
-                  "CHANGES_REQUESTED"
-                }
+                disabled={saving}
               >
-
-                Request Changes
-
+                ✎ Request Changes
               </button>
 
+              <button
+                type="button"
+                className="btn-close-modal"
+                onClick={() => setSelectedProposal(null)}
+                disabled={saving}
+              >
+                Close
+              </button>
             </div>
 
-
-            {/* =================================================
-                CLOSE
-            ================================================== */}
-
-            <button
-              className="close-btn"
-              onClick={() =>
-                setSelectedProposal(null)
-              }
-            >
-
-              Close
-
-            </button>
-
           </div>
-
         </div>
-
       )}
 
       {/* ================================================= */}

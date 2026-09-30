@@ -1,19 +1,30 @@
+/* =========================================================
+   PROJECT PROPOSAL REVIEW PAGE (FACULTY PORTAL)
+========================================================= */
+
 .review-page {
     padding: 30px;
     background: #f5f7fb;
     min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 .review-header h1 {
-    font-size: 30px;
-    color: #1f2937;
-    margin-bottom: 5px;
+    font-size: 28px;
+    color: #1e293b;
+    margin: 0 0 6px 0;
+    font-weight: 700;
 }
 
 .review-header p {
-    color: #666;
-    margin-bottom: 25px;
+    color: #64748b;
+    margin: 0 0 25px 0;
+    font-size: 14.5px;
 }
+
+/* =========================================================
+   TOOLBAR & FILTER
+========================================================= */
 
 .review-toolbar {
     display: flex;
@@ -24,154 +35,655 @@
 
 .review-toolbar input,
 .review-toolbar select {
-    padding: 12px;
+    padding: 12px 16px;
     border-radius: 8px;
-    border: 1px solid #ddd;
+    border: 1px solid #d1d5db;
     outline: none;
-    font-size: 15px;
+    font-size: 14.5px;
+    background: #ffffff;
+    color: #1f2937;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .review-toolbar input {
     flex: 1;
+    min-width: 240px;
 }
+
+.review-toolbar select {
+    min-width: 170px;
+}
+
+.review-toolbar input:focus,
+.review-toolbar select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* =========================================================
+   ERROR / LOADING
+========================================================= */
+
+.error-message {
+    padding: 14px 18px;
+    background: #fee2e2;
+    border: 1px solid #fca5a5;
+    border-radius: 8px;
+    color: #991b1b;
+    margin-bottom: 20px;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.error-message button {
+    padding: 6px 14px;
+    background: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* =========================================================
+   PROPOSAL CARDS GRID
+========================================================= */
 
 .proposal-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px,1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 20px;
+    align-items: stretch;
 }
 
 .proposal-card {
-    background: white;
+    background: #ffffff;
     padding: 22px;
-    border-radius: 14px;
-    box-shadow: 0 5px 18px rgba(0,0,0,.08);
-    transition: .3s;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .proposal-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.09);
 }
 
 .proposal-top {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 18px;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+    min-height: 48px;
 }
 
-.status {
-    padding: 5px 12px;
+.proposal-top h3 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.35;
+    word-break: break-word;
+    flex: 1;
+}
+
+/* Status Badges */
+.status,
+.status-pill {
+    padding: 4px 11px;
     border-radius: 20px;
-    color: white;
-    font-size: 13px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    display: inline-block;
+    letter-spacing: 0.3px;
 }
 
-.pending {
-    background: #f39c12;
+.status.pending,
+.status-pill.status-pending {
+    background: #fef3c7;
+    color: #b45309;
+    border: 1px solid #fcd34d;
 }
 
-.approved {
-    background: #27ae60;
+.status.approved,
+.status-pill.status-approved {
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #86efac;
 }
 
-.rejected {
-    background: #e74c3c;
+.status.rejected,
+.status-pill.status-rejected {
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fca5a5;
+}
+
+.status.changes-requested,
+.status.request-changes,
+.status-pill.status-changes {
+    background: #fff3df;
+    color: #b45309;
+    border: 1px solid #fcd34d;
 }
 
 .proposal-card p {
-    margin: 10px 0;
-    color: #555;
+    margin: 6px 0;
+    color: #475569;
+    font-size: 13.5px;
+    line-height: 1.5;
+}
+
+.proposal-card p strong {
+    color: #1e293b;
 }
 
 .view-btn {
     width: 100%;
     margin-top: 18px;
-    padding: 12px;
-    background: #2f80ed;
-    color: white;
+    padding: 11px 16px;
+    background: #2563eb;
+    color: #ffffff;
     border: none;
     border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
     cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
 }
 
 .view-btn:hover {
-    background: #1768d6;
+    background: #1d4ed8;
+    transform: translateY(-1px);
 }
 
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.45);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* =========================================================
+   PROPOSAL REVIEW POPUP MODAL (RECTANGLE BOX CONTAINER)
+========================================================= */
+
+.proposal-modal-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(15, 23, 42, 0.65) !important;
+    backdrop-filter: blur(4px) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 99999 !important;
+    padding: 20px !important;
+    box-sizing: border-box !important;
+    animation: fadeInModal 0.2s ease-out;
 }
 
-.proposal-modal {
-    width: 700px;
-    max-width: 95%;
-    background: white;
-    border-radius: 15px;
-    padding: 30px;
-    animation: popup .25s ease;
+@keyframes fadeInModal {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
-@keyframes popup {
+.proposal-modal-card {
+    position: relative !important;
+    width: 860px !important;
+    max-width: 95vw !important;
+    max-height: 88vh !important;
+    background: #ffffff !important;
+    border-radius: 14px !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.35) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    animation: slideUpModal 0.25s ease-out;
+}
+
+@keyframes slideUpModal {
     from {
-        transform: scale(.8);
+        transform: translateY(24px) scale(0.98);
         opacity: 0;
     }
     to {
-        transform: scale(1);
+        transform: translateY(0) scale(1);
         opacity: 1;
     }
 }
 
-.proposal-modal p {
-    margin: 12px 0;
-    line-height: 1.6;
+/* =========================================================
+   MODAL HEADER
+========================================================= */
+
+.proposal-modal-header {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 26px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+    gap: 16px;
 }
 
-.modal-buttons {
+.proposal-modal-header h2 {
+    margin: 0 0 4px 0;
+    font-size: 21px;
+    font-weight: 700;
+    color: #0f172a;
+    word-break: break-word;
+}
+
+.proposal-modal-header p {
+    margin: 0;
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.modal-x-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #64748b;
+    font-size: 22px;
+    line-height: 1;
     display: flex;
-    gap: 15px;
-    margin-top: 25px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+}
+
+.modal-x-btn:hover:not(:disabled) {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #dc2626;
+}
+
+/* =========================================================
+   SCROLLABLE MODAL BODY
+========================================================= */
+
+.proposal-modal-body {
+    flex: 1;
+    min-height: 0;
+    padding: 22px 26px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: #ffffff;
+}
+
+.proposal-modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.proposal-modal-body::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+.proposal-modal-body::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 8px;
+}
+
+.proposal-modal-body::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* =========================================================
+   QUICK METADATA GRID (RECTANGULAR STAT CARDS)
+========================================================= */
+
+.proposal-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+}
+
+.meta-card {
+    background: #f8fafc;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.meta-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #64748b;
+    letter-spacing: 0.5px;
+}
+
+.meta-value {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.tech-tags-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.tech-tag-pill {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.tech-tag-pill.other-tech {
+    background: #fdf4ff;
+    color: #86198f;
+    border-color: #f0abfc;
+}
+
+/* =========================================================
+   SECTIONS & RECTANGULAR BOXES
+========================================================= */
+
+.proposal-detail-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.section-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e3a8a;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+}
+
+.feedback-hint {
+    font-size: 12px;
+    font-weight: normal;
+    color: #d97706;
+}
+
+/* Members Box */
+.members-box {
+    background: #f8fafc;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.member-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: #1e293b;
+}
+
+.member-badge {
+    background: #e2e8f0;
+    color: #334155;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.enroll-badge {
+    color: #64748b;
+    font-size: 13px;
+}
+
+/* Rectangular Content Box */
+.proposal-content-box {
+    padding: 14px 18px;
+    background: #f8fafc;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    color: #1e293b;
+    font-size: 14px;
+    line-height: 1.65;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.proposal-content-box.description-box {
+    background: #ffffff;
+    border-left: 4px solid #2563eb;
+    white-space: pre-wrap;
+    word-break: break-word;
+    min-height: 80px;
+}
+
+/* File Box */
+.file-box-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
     flex-wrap: wrap;
 }
 
-.modal-buttons button {
+.file-info-col {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 14px;
+    word-break: break-all;
     flex: 1;
-    padding: 12px;
+    min-width: 220px;
+}
+
+.file-action-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.btn-view-pdf {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: #2563eb;
+    color: #ffffff;
     border: none;
-    border-radius: 8px;
-    color: white;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
     cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
 }
 
-.approve {
-    background: #27ae60;
+.btn-view-pdf:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
 }
 
-.reject {
-    background: #e74c3c;
+.btn-download-pdf {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: #059669;
+    color: #ffffff;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.15s ease, transform 0.1s ease;
 }
 
-.changes {
-    background: #f39c12;
+.btn-download-pdf:hover {
+    background: #047857;
+    transform: translateY(-1px);
 }
 
-.close-btn {
-    margin-top: 20px;
+/* Feedback Textarea */
+.proposal-feedback-textarea {
     width: 100%;
-    padding: 12px;
-    border: none;
-    background: #555;
-    color: white;
+    min-height: 110px;
+    padding: 14px 16px;
+    box-sizing: border-box;
+    background: #ffffff;
+    border: 1.5px solid #cbd5e1;
     border-radius: 8px;
-    cursor: pointer;
+    color: #1e293b;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.6;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.close-btn:hover {
-    background: #333;
+.proposal-feedback-textarea:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* =========================================================
+   MODAL FOOTER (ACTION BUTTONS)
+========================================================= */
+
+.proposal-modal-footer {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 26px;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.proposal-modal-footer button {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.proposal-modal-footer button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.btn-approve {
+    background: #16a34a;
+    color: #ffffff;
+}
+
+.btn-approve:hover:not(:disabled) {
+    background: #15803d;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(22, 163, 74, 0.25);
+}
+
+.btn-reject {
+    background: #dc2626;
+    color: #ffffff;
+}
+
+.btn-reject:hover:not(:disabled) {
+    background: #b91c1c;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(220, 38, 38, 0.25);
+}
+
+.btn-request-changes {
+    background: #d97706;
+    color: #ffffff;
+}
+
+.btn-request-changes:hover:not(:disabled) {
+    background: #b45309;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(217, 119, 6, 0.25);
+}
+
+.btn-close-modal {
+    background: #ffffff !important;
+    color: #475569 !important;
+    border: 1.5px solid #cbd5e1 !important;
+}
+
+.btn-close-modal:hover {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+    border-color: #94a3b8 !important;
+}
+
+/* =========================================================
+   RESPONSIVE DESIGN
+========================================================= */
+
+@media (max-width: 768px) {
+    .review-page {
+        padding: 20px 15px;
+    }
+
+    .proposal-modal-card {
+        width: 100% !important;
+        max-height: 94vh !important;
+    }
+
+    .proposal-modal-header {
+        padding: 16px 20px;
+    }
+
+    .proposal-modal-body {
+        padding: 18px 20px;
+    }
+
+    .proposal-meta-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .proposal-modal-footer {
+        flex-direction: column;
+        padding: 14px 20px;
+    }
+
+    .proposal-modal-footer button {
+        width: 100%;
+    }
 }

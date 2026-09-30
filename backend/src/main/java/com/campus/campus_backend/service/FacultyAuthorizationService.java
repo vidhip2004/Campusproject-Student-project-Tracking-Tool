@@ -132,27 +132,8 @@ public class FacultyAuthorizationService {
      */
     public boolean isStudentAssignedToFaculty(Integer studentId, Long facultyId, String facultyName) {
         if (studentId == null) return false;
-        Faculty faculty = resolveFaculty(facultyId, facultyName);
-        String name = faculty != null ? faculty.getFacultyName() : facultyName;
-
         Set<Integer> assignedIds = getAssignedStudentIds(facultyId, facultyName);
-        if (!assignedIds.isEmpty()) {
-            return assignedIds.contains(studentId);
-        }
-
-        // Graceful fallback when no explicit mentor allocations exist for this faculty yet:
-        // Allow access if the student is unallocated, only deny if explicitly claimed by another faculty
-        List<MentorAssignment> studentAssignments = mentorAssignmentRepository.findByStudent_Id(studentId);
-        for (MentorAssignment ma : studentAssignments) {
-            String mentor = ma.getMentor();
-            if (mentor != null && !mentor.trim().isEmpty()
-                    && !mentor.equalsIgnoreCase("Not Assigned")
-                    && (name == null || !mentor.equalsIgnoreCase(name.trim()))) {
-                return false; // Specifically assigned to a different faculty
-            }
-        }
-
-        return true;
+        return assignedIds != null && assignedIds.contains(studentId);
     }
 
     /**

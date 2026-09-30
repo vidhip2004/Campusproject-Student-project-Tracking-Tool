@@ -15,9 +15,10 @@ export const normalizeStudent = (data) => {
   const dateOfBirth = data.dateOfBirth || profile.dateOfBirth || "";
   const skills = data.skills || profile.skills || "";
   const linkedInUrl = data.linkedInUrl || profile.linkedInUrl || "";
+  const id = data.id || data.Id || data.studentId || data.userId || (profile && (profile.id || profile.studentId));
 
   return {
-    id: data.id || data.Id,
+    id: id ? Number(id) : undefined,
     fullName: data.fullName || data.name || "",
     email: data.email || "",
     mobileNo: data.mobileNo || data.phoneNumber || "",
@@ -69,11 +70,13 @@ export const saveStudentSession = (student) => {
   try {
     localStorage.setItem("student", jsonStr);
     localStorage.setItem("student_viva_backup", jsonStr);
+    if (normalized.id) localStorage.setItem("studentId", String(normalized.id));
   } catch (e) {}
 
   try {
     sessionStorage.setItem("student", jsonStr);
     sessionStorage.setItem("student_viva_backup", jsonStr);
+    if (normalized.id) sessionStorage.setItem("studentId", String(normalized.id));
   } catch (e) {}
 
   if (normalized.id) {
@@ -87,10 +90,12 @@ export const clearStudentSession = () => {
   try {
     localStorage.removeItem("student");
     localStorage.removeItem("student_viva_backup");
+    localStorage.removeItem("studentId");
   } catch (e) {}
   try {
     sessionStorage.removeItem("student");
     sessionStorage.removeItem("student_viva_backup");
+    sessionStorage.removeItem("studentId");
   } catch (e) {}
   setCookie("student_id", "", -1);
   setCookie("student_backup", "", -1);
@@ -101,13 +106,13 @@ export const getStoredStudent = () => {
   // Tier 1: localStorage
   let raw = null;
   try {
-    raw = localStorage.getItem("student") || localStorage.getItem("student_viva_backup");
+    raw = localStorage.getItem("student") || localStorage.getItem("student_viva_backup") || localStorage.getItem("user");
   } catch (e) {}
 
-  // Tier 2: sessionStorage (often survives browsing history clearing if tab is open)
+  // Tier 2: sessionStorage
   if (!raw) {
     try {
-      raw = sessionStorage.getItem("student") || sessionStorage.getItem("student_viva_backup");
+      raw = sessionStorage.getItem("student") || sessionStorage.getItem("student_viva_backup") || sessionStorage.getItem("user");
     } catch (e) {}
   }
 
@@ -121,6 +126,11 @@ export const getStoredStudent = () => {
       const parsed = JSON.parse(raw);
       if (parsed) return normalizeStudent(parsed);
     } catch (e) {}
+  }
+
+  const standaloneId = localStorage.getItem("studentId") || sessionStorage.getItem("studentId") || getCookie("student_id");
+  if (standaloneId) {
+    return { id: Number(standaloneId) };
   }
 
   return null;

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import "./WeeklyProgress.css";
 import {
   FaCalendarAlt,
@@ -14,12 +15,15 @@ import {
   FaExclamationTriangle,
   FaPlusCircle,
   FaInfoCircle,
+  FaEye,
+  FaClipboardList,
 } from "react-icons/fa";
 import { getStoredStudent, getOrRecoverStudent } from "../../utils/studentSession";
 
 function WeeklyProgress() {
   const fileInputRef = useRef(null);
   const formRef = useRef(null);
+  const [detailsModalItem, setDetailsModalItem] = useState(null);
 
   const [form, setForm] = useState({
     studentId: "",
@@ -64,18 +68,73 @@ function WeeklyProgress() {
 
   // Fetch student, project title, and all submitted weekly reports
   const fetchWeeklyData = async (studentId) => {
-    if (!studentId) return;
+    if (!studentId) return [];
     try {
-      const res = await fetch(`http://localhost:8081/api/weekly-progress/student/${studentId}`);
+      const res = await fetch(`http://localhost:8081/api/weekly-progress/student/${studentId}?requestingStudentId=${studentId}`, {
+        headers: {
+          "X-Student-Id": String(studentId),
+        },
+      });
       if (res.ok) {
         const list = await res.json();
-        setWeeklyList(Array.isArray(list) ? list : []);
-        return list;
+        const safeList = Array.isArray(list) ? list : [];
+        setWeeklyList(safeList);
+        return safeList;
       }
     } catch (err) {
       console.warn("Could not fetch weekly progress:", err);
     }
     return [];
+  };
+
+  // Populates the form to edit an existing week
+  const handleEditWeek = (weekItem, shouldScroll = true) => {
+    if (!weekItem) return;
+    setEditingWeek(weekItem.week);
+    setForm((prev) => ({
+      ...prev,
+      studentId: String(weekItem.studentId || prev.studentId),
+      week: weekItem.week,
+      title: weekItem.progressTitle || "",
+      completed: weekItem.workCompleted || "",
+      status: weekItem.status || "Completed",
+      percentage: String(weekItem.percentage || 10),
+      challenges: weekItem.challenges || "",
+      nextPlan: weekItem.nextPlan || "",
+      file: null,
+    }));
+    setErrors({});
+    setTouched({});
+
+    if (fileInputRef.current) fileInputRef.current.value = "";
+
+    if (shouldScroll && formRef.current) {
+      formRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  // Switches to a new unsubmitted week
+  const handleSelectNewWeek = (targetWeek, shouldScroll = true) => {
+    setEditingWeek(null);
+    setForm((prev) => ({
+      ...prev,
+      week: targetWeek,
+      title: "",
+      completed: "",
+      status: "Completed",
+      percentage: "10",
+      challenges: "",
+      nextPlan: "",
+      file: null,
+    }));
+    setErrors({});
+    setTouched({});
+
+    if (fileInputRef.current) fileInputRef.current.value = "";
+
+    if (shouldScroll && formRef.current) {
+      formRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   useEffect(() => {
@@ -88,7 +147,12 @@ function WeeklyProgress() {
         student = await getOrRecoverStudent();
       }
 
-      const activeStudentId = student?.id || student?.studentId || student?.Id;
+      const activeStudentId =
+        student?.id ||
+        student?.studentId ||
+        student?.Id ||
+        localStorage.getItem("studentId") ||
+        sessionStorage.getItem("studentId");
 
       if (isMounted && activeStudentId) {
         setForm((prev) => ({
@@ -104,24 +168,32 @@ function WeeklyProgress() {
             if (propData && propData.projectTitle) {
               setProjectTitle(propData.projectTitle);
             } else {
-              setProjectTitle(student.projectTitle || student.project || "My Academic Project");
+              setProjectTitle(student?.projectTitle || student?.project || "My Academic Project");
             }
           } else {
-            setProjectTitle(student.projectTitle || student.project || "My Academic Project");
+            setProjectTitle(student?.projectTitle || student?.project || "My Academic Project");
           }
         } catch {
-          setProjectTitle(student.projectTitle || student.project || "My Academic Project");
+          setProjectTitle(student?.projectTitle || student?.project || "My Academic Project");
         }
 
         // 2. Fetch all submitted weeks for this student
         const list = await fetchWeeklyData(activeStudentId);
 
-        // Auto-select the first unsubmitted week
+        // 3. Intelligently select and populate week
         if (list && list.length > 0) {
           const submittedWeekNames = list.map((w) => (w.week || "").trim());
+          const needsWork = list.find((w) => w.status === "Needs Improvement");
           const nextUnsubmitted = allWeeks.find((w) => !submittedWeekNames.includes(w));
-          if (nextUnsubmitted) {
-            setForm((prev) => ({ ...prev, week: nextUnsubmitted }));
+
+          if (needsWork) {
+            handleEditWeek(needsWork, false);
+          } else if (nextUnsubmitted) {
+            handleSelectNewWeek(nextUnsubmitted, false);
+          } else {
+            // All weeks submitted: populate with first or latest submitted week
+            const target = list[0] || list[list.length - 1];
+            handleEditWeek(target, false);
           }
         }
       }
@@ -226,54 +298,6 @@ function WeeklyProgress() {
     }
   };
 
-  // Populates the form to edit an existing week
-  const handleEditWeek = (weekItem) => {
-    setEditingWeek(weekItem.week);
-    setForm({
-      studentId: String(weekItem.studentId || form.studentId),
-      week: weekItem.week,
-      title: weekItem.progressTitle || "",
-      completed: weekItem.workCompleted || "",
-      status: weekItem.status || "Completed",
-      percentage: String(weekItem.percentage || 10),
-      challenges: weekItem.challenges || "",
-      nextPlan: weekItem.nextPlan || "",
-      file: null,
-    });
-    setErrors({});
-    setTouched({});
-
-    if (fileInputRef.current) fileInputRef.current.value = "";
-
-    // Smooth scroll down to form
-    if (formRef.current) {
-      formRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
-  // Switches to a new unsubmitted week
-  const handleSelectNewWeek = (targetWeek) => {
-    setEditingWeek(null);
-    setForm({
-      studentId: form.studentId,
-      week: targetWeek,
-      title: "",
-      completed: "",
-      status: "Completed",
-      percentage: "10",
-      challenges: "",
-      nextPlan: "",
-      file: null,
-    });
-    setErrors({});
-    setTouched({});
-
-    if (fileInputRef.current) fileInputRef.current.value = "";
-
-    if (formRef.current) {
-      formRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  };
 
   const validateAll = () => {
     const requiredKeys = ["week", "title", "completed", "status", "percentage"];
@@ -331,6 +355,9 @@ function WeeklyProgress() {
     try {
       const response = await fetch("http://localhost:8081/api/weekly-progress/submit", {
         method: "POST",
+        headers: {
+          "X-Student-Id": form.studentId,
+        },
         body: formDataPayload,
       });
 
@@ -349,8 +376,11 @@ function WeeklyProgress() {
         return;
       }
 
+      const wasChangesRequested = currentWeekRecord?.status === "Needs Improvement";
       alert(
-        editingWeek
+        wasChangesRequested
+          ? `${form.week} Resubmitted Successfully! Status is now Submitted (Pending Faculty Review).`
+          : editingWeek
           ? `${form.week} Progress Updated Successfully!`
           : `${form.week} Progress Submitted Successfully!`
       );
@@ -362,23 +392,15 @@ function WeeklyProgress() {
       const submittedWeekNames = (updatedList || []).map((w) => (w.week || "").trim());
       const nextUnsubmitted = allWeeks.find((w) => !submittedWeekNames.includes(w));
 
-      setEditingWeek(null);
-      setForm({
-        studentId: form.studentId,
-        week: nextUnsubmitted || "Week 1",
-        title: "",
-        completed: "",
-        status: "Completed",
-        percentage: "",
-        challenges: "",
-        nextPlan: "",
-        file: null,
-      });
-      setErrors({});
-      setTouched({});
-
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
+      if (nextUnsubmitted) {
+        handleSelectNewWeek(nextUnsubmitted, false);
+      } else {
+        const currentUpdated = (updatedList || []).find(
+          (w) => (w.week || "").trim().toLowerCase() === form.week.trim().toLowerCase()
+        );
+        if (currentUpdated) {
+          handleEditWeek(currentUpdated, false);
+        }
       }
     } catch (err) {
       setSubmitting(false);
@@ -405,6 +427,20 @@ function WeeklyProgress() {
           </p>
         </div>
 
+        {/* WEEKLY SUMMARY BANNER */}
+        <div className="weekly-summary-quick-banner">
+          <div className="summary-banner-left">
+            <FaClipboardList className="banner-summary-icon" />
+            <div>
+              <h4>Generate Weekly Progress Summary</h4>
+              <p>Generate a consolidated academic summary report of all weekly milestone submissions and faculty reviews.</p>
+            </div>
+          </div>
+          <Link to="/student-portal/weekly-summary" className="banner-summary-btn">
+            <FaClipboardList /> View & Generate Summary
+          </Link>
+        </div>
+
         {/* PROGRESS OVERVIEW BAR */}
         <div className="weekly-progress-summary">
           <div className="summary-stat-row">
@@ -427,125 +463,6 @@ function WeeklyProgress() {
           </div>
         </div>
 
-        {/* =========================================================
-            CHRONOLOGICAL VIEW: WEEK 1 -> WEEK 2 -> WEEK 3 -> ETC.
-           ========================================================= */}
-        <div className="all-weeks-section">
-          <div className="section-title-wrap">
-            <h2>Chronological Weekly Submissions</h2>
-            <span className="section-badge">Week 1 to Week 6 Timeline</span>
-          </div>
-
-          {loading ? (
-            <div className="timeline-loading">Loading weekly submissions...</div>
-          ) : (
-            <div className="weeks-timeline-grid">
-              {allWeeks.map((weekName, index) => {
-                const record = weeklyList.find(
-                  (item) => (item.week || "").trim().toLowerCase() === weekName.toLowerCase()
-                );
-
-                const isSubmitted = !!record;
-
-                return (
-                  <div
-                    key={weekName}
-                    className={`week-card ${isSubmitted ? "week-submitted" : "week-pending"} ${
-                      form.week === weekName ? "week-active-edit" : ""
-                    }`}
-                  >
-                    <div className="week-card-header">
-                      <div className="week-number-tag">
-                        <FaCalendarAlt className="week-cal-icon" />
-                        <span>{weekName}</span>
-                      </div>
-
-                      {isSubmitted ? (
-                        <span className="status-tag status-done">
-                          <FaCheckCircle /> Submitted (+{record.percentage}%)
-                        </span>
-                      ) : (
-                        <span className="status-tag status-empty">
-                          <FaClock /> Not Submitted
-                        </span>
-                      )}
-                    </div>
-
-                    {isSubmitted ? (
-                      <div className="week-card-body">
-                        <h4 className="week-title-display">
-                          {record.progressTitle || "Weekly Report"}
-                        </h4>
-
-                        <div className="week-info-block">
-                          <span className="info-label">Tasks Completed:</span>
-                          <p className="info-text">{record.workCompleted}</p>
-                        </div>
-
-                        {record.challenges && (
-                          <div className="week-info-block">
-                            <span className="info-label">Challenges:</span>
-                            <p className="info-text muted">{record.challenges}</p>
-                          </div>
-                        )}
-
-                        {record.nextPlan && (
-                          <div className="week-info-block">
-                            <span className="info-label">Next Plan:</span>
-                            <p className="info-text muted">{record.nextPlan}</p>
-                          </div>
-                        )}
-
-                        {/* Document Download Link */}
-                        {record.fileName && (
-                          <div className="week-doc-pill">
-                            <FaFilePdf className="doc-icon" />
-                            <span className="doc-name">{getCleanFileName(record.fileName)}</span>
-                            <a
-                              href={`http://localhost:8081/api/files/download?path=${encodeURIComponent(
-                                record.fileName
-                              )}&studentId=${record.studentId}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="doc-dl-btn"
-                              title="Download uploaded document"
-                            >
-                              <FaDownload /> Download
-                            </a>
-                          </div>
-                        )}
-
-                        <div className="week-footer-row">
-                          <span className="week-status-badge">
-                            Status: <strong>{record.status || "Completed"}</strong>
-                          </span>
-                          <button
-                            type="button"
-                            className="edit-week-btn"
-                            onClick={() => handleEditWeek(record)}
-                          >
-                            <FaEdit /> Edit Week
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="week-card-empty-body">
-                        <p className="empty-text">No milestone report submitted for {weekName} yet.</p>
-                        <button
-                          type="button"
-                          className="start-week-btn"
-                          onClick={() => handleSelectNewWeek(weekName)}
-                        >
-                          <FaPlusCircle /> Submit {weekName}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
 
         {/* =========================================================
             SUBMISSION & UPDATE FORM
@@ -553,10 +470,16 @@ function WeeklyProgress() {
         <div className="submission-form-section" ref={formRef}>
           <div className="form-header-bar">
             <h2>
-              {currentWeekRecord || editingWeek ? `✏️ Update ${form.week} Progress` : `📝 Submit ${form.week} Progress`}
+              {currentWeekRecord?.status === "Needs Improvement"
+                ? `✏️ Edit & Resubmit ${form.week} Progress`
+                : currentWeekRecord || editingWeek
+                ? `✏️ Update ${form.week} Progress`
+                : `📝 Submit ${form.week} Progress`}
             </h2>
             <span className="form-notice">
-              {currentWeekRecord || editingWeek
+              {currentWeekRecord?.status === "Needs Improvement"
+                ? `Faculty requested changes for ${form.week}. Review feedback above, revise your work, and resubmit.`
+                : currentWeekRecord || editingWeek
                 ? `You are modifying previously submitted details for ${form.week}`
                 : `Fill in tasks completed for ${form.week}`}
             </span>
@@ -852,20 +775,132 @@ function WeeklyProgress() {
               )}
             </div>
 
-            {/* Submit / Update Button */}
+            {/* Submit / Update / Resubmit Button */}
             <button
               type="submit"
-              className={`weekly-submit-btn ${currentWeekRecord || editingWeek ? "update-mode" : ""}`}
+              className={`weekly-submit-btn ${
+                currentWeekRecord?.status === "Needs Improvement"
+                  ? "resubmit-mode"
+                  : currentWeekRecord || editingWeek
+                  ? "update-mode"
+                  : ""
+              }`}
               disabled={submitting}
             >
               {submitting
                 ? "Processing..."
+                : currentWeekRecord?.status === "Needs Improvement"
+                ? `Resubmit ${form.week} Progress`
                 : currentWeekRecord || editingWeek
                 ? `Update ${form.week} Progress`
                 : `Submit ${form.week} Progress`}
             </button>
           </form>
         </div>
+
+        {/* DETAILS MODAL */}
+        {detailsModalItem && (
+          <div className="weekly-details-modal-overlay" onClick={() => setDetailsModalItem(null)}>
+            <div className="weekly-details-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-top">
+                <div className="modal-title-wrap">
+                  <span className="modal-week-badge">{detailsModalItem.week}</span>
+                  <h3>{detailsModalItem.progressTitle || "Weekly Milestone Report"}</h3>
+                </div>
+                <button
+                  type="button"
+                  className="modal-close-btn"
+                  onClick={() => setDetailsModalItem(null)}
+                >
+                  <FaTimes />
+                </button>
+              </div>
+
+              <div className="modal-content-body">
+                <div className="modal-meta-row">
+                  <div>
+                    <strong>Status: </strong>
+                    <span className="modal-status-text">{detailsModalItem.status}</span>
+                  </div>
+                  <div>
+                    <strong>Completion: </strong>
+                    <span>+{detailsModalItem.percentage}%</span>
+                  </div>
+                </div>
+
+                <div className="modal-section">
+                  <label>Tasks Completed:</label>
+                  <p>{detailsModalItem.workCompleted}</p>
+                </div>
+
+                {detailsModalItem.challenges && (
+                  <div className="modal-section">
+                    <label>Challenges Faced:</label>
+                    <p>{detailsModalItem.challenges}</p>
+                  </div>
+                )}
+
+                {detailsModalItem.nextPlan && (
+                  <div className="modal-section">
+                    <label>Next Plan:</label>
+                    <p>{detailsModalItem.nextPlan}</p>
+                  </div>
+                )}
+
+                {detailsModalItem.fileName && (
+                  <div className="modal-section">
+                    <label>Deliverable File:</label>
+                    <div className="modal-file-bar">
+                      <FaFilePdf />
+                      <span>{getCleanFileName(detailsModalItem.fileName)}</span>
+                      <a
+                        href={`http://localhost:8081/api/files/download?path=${encodeURIComponent(
+                          detailsModalItem.fileName
+                        )}&studentId=${detailsModalItem.studentId}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="modal-dl-btn"
+                      >
+                        <FaDownload /> Download
+                      </a>
+                    </div>
+                  </div>
+                )}
+
+                {detailsModalItem.facultyFeedback && (
+                  <div className="modal-feedback-box">
+                    <label>Faculty Feedback:</label>
+                    <p>{detailsModalItem.facultyFeedback}</p>
+                    {detailsModalItem.reviewedAt && (
+                      <small>Reviewed on: {new Date(detailsModalItem.reviewedAt).toLocaleString()}</small>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="modal-edit-btn"
+                  onClick={() => {
+                    const item = detailsModalItem;
+                    setDetailsModalItem(null);
+                    handleEditWeek(item, true);
+                  }}
+                >
+                  <FaEdit /> Load & Edit in Form Below
+                </button>
+                <button
+                  type="button"
+                  className="modal-done-btn"
+                  onClick={() => setDetailsModalItem(null)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

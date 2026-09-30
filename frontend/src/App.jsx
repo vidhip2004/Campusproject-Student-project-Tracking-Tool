@@ -14,6 +14,7 @@ import Dashboard from "./pages/Portal/Dashboard";
 import Profile from "./pages/Portal/Profile";
 import SubmitProposal from "./pages/Portal/SubmitProposal";
 import WeeklyProgress from "./pages/Portal/WeeklyProgress";
+import WeeklySummary from "./pages/Portal/WeeklySummary";
 import FinalSubmission from "./pages/Portal/FinalSubmission";
 import Marks from "./pages/Portal/Marks";
 import Notifications from "./pages/Portal/Notifications";
@@ -85,6 +86,9 @@ function App() {
 
           {/* Weekly Progress */}
           <Route path="weekly-progress" element={<WeeklyProgress />} />
+
+          {/* Weekly Summary */}
+          <Route path="weekly-summary" element={<WeeklySummary />} />
 
           {/* Final Submission */}
           <Route path="final-submission" element={<FinalSubmission />} />

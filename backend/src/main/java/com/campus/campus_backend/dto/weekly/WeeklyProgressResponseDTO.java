@@ -25,6 +25,12 @@ public class WeeklyProgressResponseDTO {
 
     private String fileName;
 
+    private String facultyFeedback;
+
+    private java.time.LocalDateTime reviewedAt;
+
+    private String reviewStatus;
+
 
     public Integer getProgressId() {
         return progressId;
@@ -120,5 +126,29 @@ public class WeeklyProgressResponseDTO {
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    }
+
+    public String getFacultyFeedback() {
+        return facultyFeedback;
+    }
+
+    public void setFacultyFeedback(String facultyFeedback) {
+        this.facultyFeedback = facultyFeedback;
+    }
+
+    public java.time.LocalDateTime getReviewedAt() {
+        return reviewedAt;
+    }
+
+    public void setReviewedAt(java.time.LocalDateTime reviewedAt) {
+        this.reviewedAt = reviewedAt;
+    }
+
+    public String getReviewStatus() {
+        return reviewStatus;
+    }
+
+    public void setReviewStatus(String reviewStatus) {
+        this.reviewStatus = reviewStatus;
     }
 }

@@ -4,6 +4,8 @@ public class WeeklyReviewRequestDTO {
 
     private Integer progressId;
 
+    private String status;
+
     private String facultyFeedback;
 
 
@@ -15,6 +17,13 @@ public class WeeklyReviewRequestDTO {
         this.progressId = progressId;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
     public String getFacultyFeedback() {
         return facultyFeedback;

@@ -16,6 +16,7 @@ public class ProposalResponseDTO {
     private String proposalFile;
     private String guideName;
     private String status;
+    private String comments;
     private String submissionDate;
 
     public ProposalResponseDTO() {
@@ -35,6 +36,14 @@ public class ProposalResponseDTO {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getComments() {
+        return comments;
+    }
+
+    public void setComments(String comments) {
+        this.comments = comments;
     }
 
     public String getSubmissionDate() {

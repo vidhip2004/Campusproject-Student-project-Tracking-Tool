@@ -8,6 +8,7 @@ import {
   FaCheckCircle,
   FaInfoCircle,
   FaDownload,
+  FaExclamationTriangle,
 } from "react-icons/fa";
 import { getStoredStudent, getOrRecoverStudent } from "../../utils/studentSession";
 
@@ -35,6 +36,7 @@ function SubmitProposal() {
   const [proposalId, setProposalId] = useState(null);
   const [guideName, setGuideName] = useState("");
   const [existingFileName, setExistingFileName] = useState("");
+  const [facultyRemarks, setFacultyRemarks] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -93,6 +95,7 @@ function SubmitProposal() {
                 setProposalId(data.proposalId);
                 setGuideName(data.guideName || "Not Assigned");
                 setExistingFileName(data.proposalFile || "");
+                setFacultyRemarks(data.comments || "");
 
                 // Parse technology stack
                 let techList = [];
@@ -330,6 +333,7 @@ function SubmitProposal() {
       if (result.proposalId) setProposalId(result.proposalId);
       if (result.guideName) setGuideName(result.guideName);
       if (result.proposalFile) setExistingFileName(result.proposalFile);
+      if (result.comments !== undefined) setFacultyRemarks(result.comments || "");
 
       // Clear the local file reference since it is now saved on server
       setFormData((prev) => ({
@@ -356,6 +360,7 @@ function SubmitProposal() {
     const s = (statusStr || "").toLowerCase();
     if (s.includes("approv")) return "status-approved";
     if (s.includes("reject")) return "status-rejected";
+    if (s.includes("change") || s.includes("request")) return "status-changes";
     return "status-submitted";
   };
 
@@ -372,7 +377,9 @@ function SubmitProposal() {
                 <span className="status-title-label">Current Status:</span>
                 <span className={`status-pill ${getStatusBadgeClass(proposalStatus)}`}>
                   <FaCheckCircle className="status-icon" />
-                  {proposalStatus || "Submitted"}
+                  {proposalStatus === "CHANGES_REQUESTED"
+                    ? "Changes Requested"
+                    : proposalStatus || "Submitted"}
                 </span>
                 {proposalId && <span className="proposal-id-tag">ID: #{proposalId}</span>}
               </div>
@@ -383,6 +390,22 @@ function SubmitProposal() {
                 </div>
               )}
             </div>
+
+            {/* FACULTY REMARKS / REQUESTED CHANGES BOX */}
+            {facultyRemarks && (
+              <div className="proposal-faculty-feedback-card">
+                <div className="feedback-card-header">
+                  <FaExclamationTriangle className="feedback-warning-icon" />
+                  <strong>Faculty Remarks / Requested Changes:</strong>
+                </div>
+                <div className="feedback-card-body">
+                  <p>{facultyRemarks}</p>
+                </div>
+                <span className="feedback-card-hint">
+                  Please review the faculty's requested changes above, modify the relevant fields or replace your proposal document below, and click <strong>Update Proposal</strong> to submit your revisions.
+                </span>
+              </div>
+            )}
 
             <p className="status-description-text">
               <FaInfoCircle className="info-icon" />

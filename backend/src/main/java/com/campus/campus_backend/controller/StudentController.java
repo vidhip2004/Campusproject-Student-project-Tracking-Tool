@@ -89,10 +89,15 @@ public class StudentController {
     // ==============================
 
     @PostMapping("/login")
-    public LoginResponseDTO loginStudent(
+    public ResponseEntity<?> loginStudent(
             @RequestBody LoginRequestDTO requestDTO
     ) {
-        return studentService.loginStudent(requestDTO);
+        try {
+            LoginResponseDTO response = studentService.loginStudent(requestDTO);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     // ==============================
@@ -198,8 +203,10 @@ public class StudentController {
         List<StudentDashboardDTO.WeeklyProgressItem> wItems = new ArrayList<>();
         for (int i = 1; i <= 6; i++) {
             String weekStr = "W" + i;
+            String weekFull = "Week " + i;
             boolean isSubmitted = weeklyList.stream()
-                    .anyMatch(w -> w.getWeek() != null && w.getWeek().trim().equalsIgnoreCase(weekStr));
+                    .anyMatch(w -> w.getWeek() != null && 
+                        (w.getWeek().trim().equalsIgnoreCase(weekStr) || w.getWeek().trim().equalsIgnoreCase(weekFull)));
             wItems.add(new StudentDashboardDTO.WeeklyProgressItem(weekStr, isSubmitted ? 1 : 0, 1));
         }
         dto.setWeeklyProgressData(wItems);

@@ -64,10 +64,11 @@ public class ReviewProposalService {
         return convertToDTO(proposal);
     }
 
-    // UPDATE STATUS (WITH AUTHORIZATION)
+    // UPDATE STATUS (WITH AUTHORIZATION & COMMENTS)
     public ReviewProposalResponseDTO updateStatus(
             Integer reviewProposalId,
             String status,
+            String comments,
             Long facultyId,
             String facultyName
     ) {
@@ -88,6 +89,9 @@ public class ReviewProposalService {
         }
 
         proposal.setStatus(status);
+        if (comments != null) {
+            proposal.setComments(comments.trim());
+        }
 
         if (!status.equals("PENDING")) {
             proposal.setReviewedAt(LocalDateTime.now());
@@ -95,15 +99,32 @@ public class ReviewProposalService {
 
         ReviewProposal updatedProposal = reviewProposalRepository.save(proposal);
 
-        // Also sync status back to SubmitProposal entity
+        // Also sync status and comments back to SubmitProposal entity
+        SubmitProposal sp = null;
         if (proposal.getProposalId() != null) {
-            submitProposalRepository.findById(proposal.getProposalId()).ifPresent(sp -> {
-                sp.setStatus(status);
-                submitProposalRepository.save(sp);
-            });
+            sp = submitProposalRepository.findById(proposal.getProposalId()).orElse(null);
+        }
+        if (sp == null && proposal.getStudentId() != null) {
+            sp = submitProposalRepository.findFirstByStudentIdOrderByProposalIdDesc(proposal.getStudentId()).orElse(null);
+        }
+        if (sp != null) {
+            sp.setStatus(status);
+            if (comments != null) {
+                sp.setComments(comments.trim());
+            }
+            submitProposalRepository.save(sp);
         }
 
         return convertToDTO(updatedProposal);
+    }
+
+    public ReviewProposalResponseDTO updateStatus(
+            Integer reviewProposalId,
+            String status,
+            Long facultyId,
+            String facultyName
+    ) {
+        return updateStatus(reviewProposalId, status, null, facultyId, facultyName);
     }
 
     // CONVERT ENTITY -> DTO

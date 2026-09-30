@@ -1,0 +1,524 @@
+/* ============================================================
+   INSTITUTIONAL PROJECT PROGRESS REPORT STYLESHEET
+   Matches exact official format from Sardar Vallabhbhai Global University
+   ============================================================ */
+
+.weekly-summary-page {
+  padding: 24px;
+  background-color: #f1f5f9;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
+  color: #000000;
+}
+
+/* Breadcrumb & Action bar */
+.summary-nav-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  background: #ffffff;
+  padding: 14px 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.summary-breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.back-link:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+.crumb-sep {
+  color: #94a3b8;
+}
+
+.crumb-current {
+  color: #475569;
+  font-weight: 600;
+}
+
+.summary-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.action-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: #f8fafc;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-btn-secondary:hover:not(:disabled) {
+  background-color: #e2e8f0;
+}
+
+.action-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.download-btn {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25);
+}
+
+.download-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+  transform: translateY(-1px);
+}
+
+.print-btn {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+}
+
+.print-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  transform: translateY(-1px);
+}
+
+.spin-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Spinner */
+.summary-loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.summary-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e2e8f0;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 12px;
+}
+
+/* ============================================================
+   A4 PDF DOCUMENT FORMAT
+   ============================================================ */
+
+.pdf-document-wrapper {
+  width: 794px;
+  max-width: 100%;
+  margin: 0 auto 40px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.pdf-page {
+  position: relative;
+  background: #ffffff;
+  width: 794px;
+  height: 1120px;
+  max-height: 1120px;
+  padding: 34px 40px 30px 40px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  margin: 0 auto 24px auto;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.pdf-page-1 {
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+.pdf-page-2 {
+  page-break-before: always;
+  break-before: page;
+  page-break-after: avoid;
+  break-after: avoid;
+  margin-bottom: 0;
+}
+
+/* Specific export mode activated during PDF download */
+.pdf-export-mode {
+  width: 794px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  gap: 0 !important;
+}
+
+.pdf-export-mode .pdf-page {
+  margin: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  width: 794px !important;
+  height: 1120px !important;
+  max-height: 1120px !important;
+  overflow: hidden !important;
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
+}
+
+.pdf-export-mode .pdf-page-1 {
+  page-break-after: avoid !important;
+  break-after: avoid !important;
+}
+
+.pdf-export-mode .pdf-page-2 {
+  page-break-before: always !important;
+  break-before: page !important;
+  page-break-after: avoid !important;
+  break-after: avoid !important;
+}
+
+/* SVGU Watermark Overlay */
+.pdf-watermark-overlay {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.12;
+  pointer-events: none;
+  user-select: none;
+  z-index: 1;
+  text-align: center;
+}
+
+.watermark-emblem {
+  width: 220px;
+  height: 220px;
+  margin-bottom: 12px;
+}
+
+.watermark-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.watermark-name-text {
+  font-family: "Times New Roman", Times, serif;
+  font-size: 38px;
+  font-weight: 800;
+  color: #1e3a8a;
+  letter-spacing: 1px;
+  line-height: 1.15;
+  display: flex;
+  flex-direction: column;
+}
+
+.watermark-abbr {
+  font-family: "Times New Roman", Times, serif;
+  font-size: 52px;
+  font-weight: 900;
+  color: #dc2626;
+  letter-spacing: 6px;
+  margin-top: 8px;
+}
+
+/* Document Title */
+.report-main-title {
+  text-align: center;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 21px;
+  font-weight: 800;
+  text-decoration: underline;
+  color: #000000;
+  margin: 0 0 28px 0;
+  position: relative;
+  z-index: 2;
+}
+
+/* Section Blocks */
+.report-section-block {
+  margin-bottom: 28px;
+  position: relative;
+  z-index: 2;
+}
+
+.section-title-heading {
+  font-family: "Times New Roman", Times, serif;
+  font-size: 15px;
+  font-weight: 800;
+  color: #000000;
+  margin: 0 0 14px 0;
+  text-transform: uppercase;
+}
+
+/* Section 1: Info Lines (with underlines matching template) */
+.info-fields-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-left: 8px;
+}
+
+.info-line-row {
+  display: flex;
+  align-items: flex-end;
+  position: relative;
+  width: 100%;
+  min-height: 24px;
+}
+
+.info-field-label {
+  font-family: "Times New Roman", Times, serif;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #000000;
+  white-space: nowrap;
+  margin-right: 8px;
+}
+
+.info-field-value {
+  font-family: "Times New Roman", Times, serif;
+  font-size: 14px;
+  color: #111827;
+  padding: 0 8px;
+  z-index: 2;
+  font-weight: 600;
+}
+
+.info-field-underline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: #6b7280;
+  z-index: 1;
+}
+
+/* ============================================================
+   INSTITUTIONAL TABLES (Exact format from Image 2)
+   ============================================================ */
+
+.institutional-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 13px;
+  color: #000000;
+  background: transparent;
+  border: 1.5px solid #000000;
+  margin-top: 6px;
+  position: relative;
+  z-index: 2;
+}
+
+.institutional-table th,
+.institutional-table td {
+  border: 1px solid #000000;
+  padding: 8px 8px;
+  vertical-align: middle;
+  line-height: 1.35;
+}
+
+.institutional-table th {
+  background-color: #ffffff;
+  font-weight: 800;
+  text-align: center;
+  color: #000000;
+  font-size: 12.5px;
+}
+
+.member-details-table td {
+  padding: 8px 8px;
+}
+
+.progress-sessions-table th,
+.progress-sessions-table td {
+  padding: 5.5px 5px;
+  font-size: 11px;
+}
+
+.goal-cell-text {
+  font-size: 11px;
+  line-height: 1.25;
+  color: #000000;
+}
+
+.work-cell-text {
+  font-size: 11px;
+  line-height: 1.25;
+  color: #111827;
+  font-weight: 500;
+}
+
+.feedback-cell-text {
+  font-size: 10.5px;
+  line-height: 1.2;
+  color: #374151;
+  font-style: italic;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.font-bold {
+  font-weight: 800;
+}
+
+.sign-mark-cell {
+  font-size: 15px;
+}
+
+.multi-sign-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.faculty-sign-mark {
+  font-size: 13px;
+  color: #1e3a8a;
+}
+
+/* Page Footers */
+.pdf-page-footer {
+  margin-top: auto;
+  text-align: center;
+  padding-top: 16px;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 11px;
+  color: #000000;
+  position: relative;
+  z-index: 2;
+}
+
+.pdf-page-footer strong {
+  font-weight: 800;
+}
+
+/* ============================================================
+   PRINT STYLESHEET (@media print)
+   ============================================================ */
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .weekly-summary-page {
+    background: #ffffff !important;
+    padding: 0 !important;
+    min-height: auto !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .pdf-document-wrapper {
+    width: 794px !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    gap: 0 !important;
+  }
+
+  .pdf-page {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    padding: 34px 40px 30px 40px !important;
+    width: 794px !important;
+    height: 1120px !important;
+    max-height: 1120px !important;
+    overflow: hidden !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .pdf-page-1 {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+
+  .pdf-page-2 {
+    page-break-before: always !important;
+    break-before: page !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+
+  .institutional-table {
+    border: 1.5px solid #000000 !important;
+  }
+
+  .institutional-table th,
+  .institutional-table td {
+    border: 1px solid #000000 !important;
+  }
+
+  .pdf-watermark-overlay {
+    opacity: 0.1 !important;
+  }
+}

@@ -64,6 +64,7 @@ public class ReviewProposalController {
                 reviewProposalService.updateStatus(
                         id,
                         request.getStatus(),
+                        request.getComments(),
                         facultyId,
                         facultyName
                 )

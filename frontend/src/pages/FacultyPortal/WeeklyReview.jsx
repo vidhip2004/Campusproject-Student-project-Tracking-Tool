@@ -134,20 +134,13 @@ function WeeklyReview() {
     }
   };
 
-  // =========================================================
-  // SUBMIT REVIEW
-  // =========================================================
-
   const submitReview = async (status) => {
     if (!selectedWeek) {
       return;
     }
 
-    if (!feedback.trim()) {
-      setError(
-        "Please enter faculty feedback before submitting."
-      );
-
+    if (status === "Needs Improvement" && (!feedback || !feedback.trim())) {
+      setError("Faculty feedback is required when requesting changes.");
       return;
     }
 
@@ -161,23 +154,13 @@ function WeeklyReview() {
         facultyName: facultyName || undefined,
       };
 
-      // UPDATE STATUS
-      await axios.put(
-        `${WEEKLY_PROGRESS_API}/${selectedWeek.progressId}/status`,
-        {
-          status: status,
-        },
-        {
-          params: authParams,
-        }
-      );
-
-      // SAVE FACULTY FEEDBACK
+      // ATOMIC REVIEW OPERATION (status + feedback + notification)
       await axios.put(
         `${WEEKLY_REVIEW_API}/progress/${selectedWeek.progressId}`,
         {
           progressId: selectedWeek.progressId,
-          facultyFeedback: feedback.trim(),
+          status: status,
+          facultyFeedback: feedback ? feedback.trim() : "",
         },
         {
           params: authParams,
@@ -383,7 +366,7 @@ function WeeklyReview() {
                           : "status-submitted"
                       }
                     >
-                      {status}
+                      {status === "Needs Improvement" ? "Changes Requested" : status === "Submitted" ? "Submitted — Pending Review" : status}
                     </span>
 
                   </div>
@@ -443,10 +426,14 @@ function WeeklyReview() {
           REVIEW MODAL
       ===================================================== */}
 
-      {selectedWeek && (
-        <div className="weekly-review-overlay">
+      {/* =====================================================
+          REVIEW MODAL
+      ===================================================== */}
 
-          <div className="weekly-review-modal">
+      {selectedWeek && (
+        <div className="weekly-review-overlay" onClick={closeModal}>
+
+          <div className="weekly-review-modal" onClick={(e) => e.stopPropagation()}>
 
 
             {/* =================================================
@@ -471,6 +458,7 @@ function WeeklyReview() {
                 className="modal-x-btn"
                 onClick={closeModal}
                 disabled={saving}
+                title="Close"
               >
                 ×
               </button>
@@ -479,7 +467,7 @@ function WeeklyReview() {
 
 
             {/* =================================================
-                SUMMARY
+                SUMMARY (RECTANGULAR STAT CARDS)
             ================================================= */}
 
             <div className="review-summary">
@@ -516,9 +504,21 @@ function WeeklyReview() {
                   Status
                 </span>
 
-                <strong>
-                  {selectedWeek.status || "Submitted"}
-                </strong>
+                <div>
+                  <span
+                    className={`summary-status-tag ${
+                      selectedWeek.status === "Approved"
+                        ? "status-approved"
+                        : selectedWeek.status === "Needs Improvement"
+                        ? "status-improvement"
+                        : "status-submitted"
+                    }`}
+                  >
+                    {selectedWeek.status === "Needs Improvement"
+                      ? "Changes Requested"
+                      : (selectedWeek.status || "Submitted")}
+                  </span>
+                </div>
 
               </div>
 
@@ -539,7 +539,7 @@ function WeeklyReview() {
 
 
             {/* =================================================
-                SCROLLABLE REVIEW BODY
+                SCROLLABLE REVIEW BODY (RECTANGULAR CONTENT BOXES)
             ================================================= */}
 
             <div className="review-modal-body">
@@ -560,8 +560,7 @@ function WeeklyReview() {
                   </span>
 
                   <strong>
-                    {selectedWeek.projectTitle ||
-                      "-"}
+                    {selectedWeek.projectTitle || "-"}
                   </strong>
 
                 </div>
@@ -578,8 +577,7 @@ function WeeklyReview() {
                 </div>
 
                 <div className="content-box">
-                  {selectedWeek.progressTitle ||
-                    "-"}
+                  {selectedWeek.progressTitle || "-"}
                 </div>
 
               </section>
@@ -596,7 +594,7 @@ function WeeklyReview() {
                 <div className="content-box large-text">
                   {selectedWeek.workCompleted ||
                     selectedWeek.tasks ||
-                    "-"}
+                    "No task completion details provided."}
                 </div>
 
               </section>
@@ -611,8 +609,7 @@ function WeeklyReview() {
                 </div>
 
                 <div className="content-box large-text">
-                  {selectedWeek.challenges ||
-                    "-"}
+                  {selectedWeek.challenges || "No challenges reported."}
                 </div>
 
               </section>
@@ -627,8 +624,7 @@ function WeeklyReview() {
                 </div>
 
                 <div className="content-box large-text">
-                  {selectedWeek.nextPlan ||
-                    "-"}
+                  {selectedWeek.nextPlan || "No next week plan submitted."}
                 </div>
 
               </section>
@@ -643,10 +639,27 @@ function WeeklyReview() {
                 </div>
 
                 <div className="content-box">
-
-                  {selectedWeek.fileName ||
-                    "No file submitted"}
-
+                  {selectedWeek.fileName ? (
+                    <div className="file-info-row">
+                      <span className="file-name-text">
+                        📄 {selectedWeek.fileName.split("/").pop().split("\\").pop()}
+                      </span>
+                      <a
+                        href={`http://localhost:8081/api/files/download?path=${encodeURIComponent(
+                          selectedWeek.fileName
+                        )}&studentId=${selectedWeek.studentId}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="download-file-btn"
+                      >
+                        ⬇ Download File
+                      </a>
+                    </div>
+                  ) : (
+                    <span style={{ color: "#64748b", fontStyle: "italic" }}>
+                      No file submitted
+                    </span>
+                  )}
                 </div>
 
               </section>
@@ -660,20 +673,22 @@ function WeeklyReview() {
                   GitHub Repository
                 </div>
 
-                {selectedWeek.githubUrl ? (
-                  <a
-                    className="github-link"
-                    href={selectedWeek.githubUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {selectedWeek.githubUrl}
-                  </a>
-                ) : (
-                  <div className="content-box">
-                    No GitHub repository provided.
-                  </div>
-                )}
+                <div className="content-box">
+                  {selectedWeek.githubUrl ? (
+                    <a
+                      className="github-link"
+                      href={selectedWeek.githubUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      🔗 {selectedWeek.githubUrl}
+                    </a>
+                  ) : (
+                    <span style={{ color: "#64748b", fontStyle: "italic" }}>
+                      No GitHub repository provided.
+                    </span>
+                  )}
+                </div>
 
               </section>
 
@@ -688,7 +703,7 @@ function WeeklyReview() {
 
                 <textarea
                   className="faculty-feedback"
-                  placeholder="Write your feedback for the student..."
+                  placeholder="Write your review feedback for the student..."
                   value={feedback}
                   onChange={(e) =>
                     setFeedback(e.target.value)
@@ -716,7 +731,7 @@ function WeeklyReview() {
               >
                 {saving
                   ? "Saving..."
-                  : "Approve"}
+                  : "✓ Approve"}
               </button>
 
 
@@ -731,7 +746,7 @@ function WeeklyReview() {
               >
                 {saving
                   ? "Saving..."
-                  : "Needs Improvement"}
+                  : "✎ Request Changes"}
               </button>
 
 

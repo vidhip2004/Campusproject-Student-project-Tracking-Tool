@@ -17,6 +17,7 @@ public class AdminDashboardDTO {
     private List<ProjectStatusItem> projectStatusData = new ArrayList<>();
     private List<MentorDataItem> mentorData = new ArrayList<>();
     private List<ReportDataItem> reportData = new ArrayList<>();
+    private List<WeeklyProgressItem> weeklyProgressData = new ArrayList<>();
 
     public AdminDashboardDTO() {
     }
@@ -109,6 +110,42 @@ public class AdminDashboardDTO {
 
     public void setReportData(List<ReportDataItem> reportData) {
         this.reportData = reportData;
+    }
+
+    public List<WeeklyProgressItem> getWeeklyProgressData() {
+        return weeklyProgressData;
+    }
+
+    public void setWeeklyProgressData(List<WeeklyProgressItem> weeklyProgressData) {
+        this.weeklyProgressData = weeklyProgressData;
+    }
+
+    public static class WeeklyProgressItem {
+        private String week;
+        private long total;
+        private long approved;
+        private long needsImprovement;
+        private long pending;
+
+        public WeeklyProgressItem() {}
+        public WeeklyProgressItem(String week, long total, long approved, long needsImprovement, long pending) {
+            this.week = week;
+            this.total = total;
+            this.approved = approved;
+            this.needsImprovement = needsImprovement;
+            this.pending = pending;
+        }
+
+        public String getWeek() { return week; }
+        public void setWeek(String week) { this.week = week; }
+        public long getTotal() { return total; }
+        public void setTotal(long total) { this.total = total; }
+        public long getApproved() { return approved; }
+        public void setApproved(long approved) { this.approved = approved; }
+        public long getNeedsImprovement() { return needsImprovement; }
+        public void setNeedsImprovement(long needsImprovement) { this.needsImprovement = needsImprovement; }
+        public long getPending() { return pending; }
+        public void setPending(long pending) { this.pending = pending; }
     }
 
     public static class ProjectStatusItem {

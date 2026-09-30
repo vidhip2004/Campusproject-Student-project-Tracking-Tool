@@ -191,7 +191,7 @@ public class SubmitProposalService {
         proposal.setMember3Enrollment(requestDTO.getMember3Enrollment() == null ? null : requestDTO.getMember3Enrollment().trim());
         proposal.setProjectDescription(projectDescription);
         proposal.setProposalFile(storedFilePath);
-        if (proposal.getStatus() == null || proposal.getStatus().trim().isEmpty()) {
+        if (proposal.getStatus() == null || proposal.getStatus().trim().isEmpty() || "CHANGES_REQUESTED".equalsIgnoreCase(proposal.getStatus())) {
             proposal.setStatus("PENDING");
         }
 
@@ -214,7 +214,7 @@ public class SubmitProposalService {
         reviewProposal.setMember3Enrollment(savedProposal.getMember3Enrollment());
         reviewProposal.setProjectDescription(savedProposal.getProjectDescription());
         reviewProposal.setProposalFile(storedFilePath);
-        if (reviewProposal.getStatus() == null || reviewProposal.getStatus().trim().isEmpty()) {
+        if (reviewProposal.getStatus() == null || reviewProposal.getStatus().trim().isEmpty() || "CHANGES_REQUESTED".equalsIgnoreCase(reviewProposal.getStatus())) {
             reviewProposal.setStatus("PENDING");
         }
 
@@ -264,6 +264,7 @@ public class SubmitProposalService {
         responseDTO.setProjectDescription(savedProposal.getProjectDescription());
         responseDTO.setProposalFile(savedProposal.getProposalFile());
         responseDTO.setStatus(savedProposal.getStatus());
+        responseDTO.setComments(savedProposal.getComments());
         responseDTO.setGuideName(mentorAssignment.getMentor());
 
         return responseDTO;
@@ -331,6 +332,14 @@ public class SubmitProposalService {
 
         responseDTO.setGuideName(guideName != null && !guideName.trim().isEmpty() ? guideName : "Not Assigned");
         responseDTO.setStatus(proposal.getStatus() != null ? proposal.getStatus() : "Submitted");
+
+        String comments = proposal.getComments();
+        if ((comments == null || comments.trim().isEmpty()) && proposal.getProposalId() != null) {
+            comments = reviewProposalRepository.findByProposalId(proposal.getProposalId())
+                    .map(ReviewProposal::getComments)
+                    .orElse(null);
+        }
+        responseDTO.setComments(comments);
 
         return responseDTO;
     }

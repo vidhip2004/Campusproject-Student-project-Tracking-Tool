@@ -8,4 +8,8 @@ public interface ReviewProposalRepository  extends JpaRepository<ReviewProposal,
 
     Optional<ReviewProposal> findByProposalId(Integer proposalId);
 
+    java.util.List<ReviewProposal> findByStudentId(Integer studentId);
+
+    Optional<ReviewProposal> findFirstByStudentIdOrderByReviewProposalIdDesc(Integer studentId);
+
 }

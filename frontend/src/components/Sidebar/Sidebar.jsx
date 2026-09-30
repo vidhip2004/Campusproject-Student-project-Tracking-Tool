@@ -7,6 +7,7 @@ import {
   FaUser,
   FaFileAlt,
   FaCalendarAlt,
+  FaClipboardList,
   FaFolderOpen,
   FaAward,
   FaBell,
@@ -63,6 +64,14 @@ function Sidebar({ sidebarOpen }) {
         >
           <FaCalendarAlt />
           <span>Weekly Progress</span>
+        </NavLink>
+
+        <NavLink
+          to="/student-portal/weekly-summary"
+          className={({ isActive }) => (isActive ? "active" : "")}
+        >
+          <FaClipboardList />
+          <span>Weekly Summary</span>
         </NavLink>
 
         <NavLink

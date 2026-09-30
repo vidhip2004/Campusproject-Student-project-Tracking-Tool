@@ -17,10 +17,14 @@ public class WeeklyReview {
     @Column(name = "faculty_feedback", columnDefinition = "TEXT")
     private String facultyFeedback;
 
+    @Column(name = "review_status")
+    private String reviewStatus;
+
+    @Column(name = "reviewed_at")
+    private java.time.LocalDateTime reviewedAt;
 
     public WeeklyReview() {
     }
-
 
     public Integer getWeeklyReviewId() {
         return weeklyReviewId;
@@ -30,7 +34,6 @@ public class WeeklyReview {
         this.weeklyReviewId = weeklyReviewId;
     }
 
-
     public Integer getProgressId() {
         return progressId;
     }
@@ -39,12 +42,27 @@ public class WeeklyReview {
         this.progressId = progressId;
     }
 
-
     public String getFacultyFeedback() {
         return facultyFeedback;
     }
 
     public void setFacultyFeedback(String facultyFeedback) {
         this.facultyFeedback = facultyFeedback;
+    }
+
+    public String getReviewStatus() {
+        return reviewStatus;
+    }
+
+    public void setReviewStatus(String reviewStatus) {
+        this.reviewStatus = reviewStatus;
+    }
+
+    public java.time.LocalDateTime getReviewedAt() {
+        return reviewedAt;
+    }
+
+    public void setReviewedAt(java.time.LocalDateTime reviewedAt) {
+        this.reviewedAt = reviewedAt;
     }
 }

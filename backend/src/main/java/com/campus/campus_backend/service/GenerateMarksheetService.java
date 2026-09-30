@@ -128,7 +128,11 @@ public class GenerateMarksheetService {
         response.setSourceCodeMarks(marks.getSourceCodeMarks());
 
         response.setTotalMarks(marks.getTotalMarks());
-        response.setPercentage(marks.getPercentage());
+        java.math.BigDecimal pct = marks.getPercentage();
+        if (pct != null && pct.compareTo(java.math.BigDecimal.ONE) <= 0 && pct.compareTo(java.math.BigDecimal.ZERO) > 0 && marks.getTotalMarks() != null && marks.getTotalMarks() > 1) {
+            pct = pct.multiply(java.math.BigDecimal.valueOf(100)).setScale(2, java.math.RoundingMode.HALF_UP);
+        }
+        response.setPercentage(pct != null ? pct : java.math.BigDecimal.valueOf(marks.getTotalMarks() != null ? marks.getTotalMarks() : 0).setScale(2, java.math.RoundingMode.HALF_UP));
         response.setGrade(marks.getGrade());
         response.setResult(marks.getResult());
         response.setOverallComments(marks.getOverallComments());

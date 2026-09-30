@@ -196,7 +196,7 @@ public class MarksServiceImpl implements MarksService {
         validateMarks("Source Code / Implementation", sourceCodeMarks, 20);
 
         int totalMarks = proposalMarks + weeklyMarks + finalReportMarks + presentationVivaMarks + sourceCodeMarks;
-        BigDecimal percentage = BigDecimal.valueOf(totalMarks).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+        BigDecimal percentage = BigDecimal.valueOf(totalMarks).setScale(2, RoundingMode.HALF_UP);
         String grade = calculateGrade(totalMarks);
         String result = totalMarks >= 40 ? "PASS" : "FAIL";
 
@@ -280,7 +280,11 @@ public class MarksServiceImpl implements MarksService {
         dto.setSourceCodeMarks(marks.getSourceCodeMarks());
 
         dto.setTotalMarks(marks.getTotalMarks());
-        dto.setPercentage(marks.getPercentage());
+        BigDecimal pct = marks.getPercentage();
+        if (pct != null && pct.compareTo(BigDecimal.ONE) <= 0 && pct.compareTo(BigDecimal.ZERO) > 0 && marks.getTotalMarks() != null && marks.getTotalMarks() > 1) {
+            pct = pct.multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP);
+        }
+        dto.setPercentage(pct != null ? pct : BigDecimal.valueOf(marks.getTotalMarks() != null ? marks.getTotalMarks() : 0).setScale(2, RoundingMode.HALF_UP));
         dto.setGrade(marks.getGrade());
         dto.setResult(marks.getResult());
 

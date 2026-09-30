@@ -24,6 +24,7 @@ public class AdminController {
     private final SubmitProposalRepository submitProposalRepository;
     private final MentorAssignmentRepository mentorAssignmentRepository;
     private final WeeklyProgressRepository weeklyProgressRepository;
+    private final WeeklyReviewRepository weeklyReviewRepository;
 
     public AdminController(
             AdminService adminService,
@@ -31,7 +32,8 @@ public class AdminController {
             FacultyRepository facultyRepository,
             SubmitProposalRepository submitProposalRepository,
             MentorAssignmentRepository mentorAssignmentRepository,
-            WeeklyProgressRepository weeklyProgressRepository
+            WeeklyProgressRepository weeklyProgressRepository,
+            WeeklyReviewRepository weeklyReviewRepository
     ) {
         this.adminService = adminService;
         this.studentRepository = studentRepository;
@@ -39,6 +41,7 @@ public class AdminController {
         this.submitProposalRepository = submitProposalRepository;
         this.mentorAssignmentRepository = mentorAssignmentRepository;
         this.weeklyProgressRepository = weeklyProgressRepository;
+        this.weeklyReviewRepository = weeklyReviewRepository;
     }
 
 
@@ -86,7 +89,13 @@ public class AdminController {
                 .filter(p -> p.getStatus() != null && (p.getStatus().equalsIgnoreCase("Approved") || p.getStatus().equalsIgnoreCase("Completed")))
                 .count();
 
-        long inProgressProjects = Math.max(0, totalProjects - pendingApprovals - completedProjects);
+        long inProgressProjects = allProposals
+                .stream()
+                .filter(p -> p.getStatus() != null && (p.getStatus().equalsIgnoreCase("Changes Requested") || p.getStatus().equalsIgnoreCase("In Progress")))
+                .count();
+
+        long unsubmittedCount = Math.max(0, totalStudents - allProposals.size());
+        long pendingCount = pendingApprovals + unsubmittedCount;
 
         AdminDashboardDTO dto = new AdminDashboardDTO(
                 totalStudents,
@@ -96,25 +105,30 @@ public class AdminController {
         );
 
         long mentorAssignedCount = mentorAssignmentRepository.count();
-        long totalWeeklyProgressCount = weeklyProgressRepository.count();
+        List<com.campus.campus_backend.entity.WeeklyProgress> allWeekly = weeklyProgressRepository.findAll();
+        List<com.campus.campus_backend.entity.WeeklyReview> allReviews = weeklyReviewRepository.findAll();
+        long totalWeeklyProgressCount = allWeekly.size();
 
-        dto.setAssignedStudents(totalStudents);
+        dto.setAssignedStudents(mentorAssignedCount > 0 ? mentorAssignedCount : totalStudents);
         dto.setMentorAssignments(mentorAssignedCount > 0 ? mentorAssignedCount : totalProjects);
-        dto.setReports(totalWeeklyProgressCount > 0 ? totalWeeklyProgressCount : totalProjects);
+        dto.setReports(totalWeeklyProgressCount);
 
+        // 1. DYNAMIC PROJECT STATUS DATA
         List<AdminDashboardDTO.ProjectStatusItem> statusList = new ArrayList<>();
         statusList.add(new AdminDashboardDTO.ProjectStatusItem("Completed", completedProjects));
         statusList.add(new AdminDashboardDTO.ProjectStatusItem("In Progress", inProgressProjects));
-        statusList.add(new AdminDashboardDTO.ProjectStatusItem("Pending", pendingApprovals));
+        statusList.add(new AdminDashboardDTO.ProjectStatusItem("Pending / Unassigned", pendingCount));
         dto.setProjectStatusData(statusList);
 
-        Map<String, Long> mentorMap = mentorAssignmentRepository.findAll()
-                .stream()
-                .filter(m -> m.getMentor() != null && !m.getMentor().trim().isEmpty())
-                .collect(Collectors.groupingBy(m -> m.getMentor().trim(), Collectors.counting()));
+        // 2. DYNAMIC STUDENTS BY MENTOR
+        Map<String, Long> mentorMap = new java.util.LinkedHashMap<>();
+        facultyRepository.findAll().forEach(f -> mentorMap.put(f.getFacultyName(), 0L));
 
-        if (mentorMap.isEmpty()) {
-            facultyRepository.findAll().forEach(f -> mentorMap.put(f.getFacultyName(), 0L));
+        for (var ma : mentorAssignmentRepository.findAll()) {
+            if (ma.getMentor() != null && !ma.getMentor().trim().isEmpty()) {
+                String mName = ma.getMentor().trim();
+                mentorMap.put(mName, mentorMap.getOrDefault(mName, 0L) + 1);
+            }
         }
 
         List<AdminDashboardDTO.MentorDataItem> mentorItems = mentorMap.entrySet().stream()
@@ -122,13 +136,69 @@ public class AdminController {
                 .collect(Collectors.toList());
         dto.setMentorData(mentorItems);
 
-        List<AdminDashboardDTO.ReportDataItem> reportItems = new ArrayList<>();
-        reportItems.add(new AdminDashboardDTO.ReportDataItem("Jan", Math.min(totalWeeklyProgressCount, 2)));
-        reportItems.add(new AdminDashboardDTO.ReportDataItem("Feb", Math.min(totalWeeklyProgressCount, 5)));
-        reportItems.add(new AdminDashboardDTO.ReportDataItem("Mar", Math.min(totalWeeklyProgressCount, 8)));
-        reportItems.add(new AdminDashboardDTO.ReportDataItem("Apr", Math.min(totalWeeklyProgressCount, 12)));
-        reportItems.add(new AdminDashboardDTO.ReportDataItem("May", Math.min(totalWeeklyProgressCount, 15)));
-        reportItems.add(new AdminDashboardDTO.ReportDataItem("Jun", Math.max(totalWeeklyProgressCount, 20)));
+        // 3. DYNAMIC WEEKLY PROGRESS BREAKDOWN (Weeks 1 to 6)
+        Map<Integer, com.campus.campus_backend.entity.WeeklyReview> reviewMap = allReviews.stream()
+                .collect(Collectors.toMap(
+                        com.campus.campus_backend.entity.WeeklyReview::getProgressId,
+                        r -> r,
+                        (r1, r2) -> r1
+                ));
+
+        String[] standardWeeks = {"Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6"};
+        List<AdminDashboardDTO.WeeklyProgressItem> weeklyList = new ArrayList<>();
+        for (String wk : standardWeeks) {
+            List<com.campus.campus_backend.entity.WeeklyProgress> listForWk = allWeekly.stream()
+                    .filter(w -> w.getWeek() != null && w.getWeek().trim().equalsIgnoreCase(wk))
+                    .collect(Collectors.toList());
+
+            long totalWk = listForWk.size();
+            long approvedWk = listForWk.stream()
+                    .filter(w -> {
+                        var rev = reviewMap.get(w.getProgressId());
+                        String s = rev != null ? rev.getReviewStatus() : w.getStatus();
+                        return s != null && s.equalsIgnoreCase("Approved");
+                    })
+                    .count();
+
+            long needsImpWk = listForWk.stream()
+                    .filter(w -> {
+                        var rev = reviewMap.get(w.getProgressId());
+                        String s = rev != null ? rev.getReviewStatus() : w.getStatus();
+                        return s != null && (s.equalsIgnoreCase("Needs Improvement") || s.equalsIgnoreCase("CHANGES_REQUESTED"));
+                    })
+                    .count();
+
+            long pendingWk = Math.max(0, totalWk - approvedWk - needsImpWk);
+
+            weeklyList.add(new AdminDashboardDTO.WeeklyProgressItem(wk, totalWk, approvedWk, needsImpWk, pendingWk));
+        }
+        dto.setWeeklyProgressData(weeklyList);
+
+        // 4. DYNAMIC MONTHLY REPORTS DATA
+        Map<String, Long> monthlyCounts = new java.util.LinkedHashMap<>();
+        String[] defaultMonths = {"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+        for (String m : defaultMonths) {
+            monthlyCounts.put(m, 0L);
+        }
+
+        java.time.format.DateTimeFormatter monthFmt = java.time.format.DateTimeFormatter.ofPattern("MMM", java.util.Locale.ENGLISH);
+        long recordedMonthCount = 0;
+        for (var r : allReviews) {
+            if (r.getReviewedAt() != null) {
+                String mName = r.getReviewedAt().format(monthFmt);
+                monthlyCounts.put(mName, monthlyCounts.getOrDefault(mName, 0L) + 1);
+                recordedMonthCount++;
+            }
+        }
+        long unassignedProgress = totalWeeklyProgressCount - recordedMonthCount;
+        if (unassignedProgress > 0) {
+            String currMonth = java.time.LocalDateTime.now().format(monthFmt);
+            monthlyCounts.put(currMonth, monthlyCounts.getOrDefault(currMonth, 0L) + unassignedProgress);
+        }
+
+        List<AdminDashboardDTO.ReportDataItem> reportItems = monthlyCounts.entrySet().stream()
+                .map(e -> new AdminDashboardDTO.ReportDataItem(e.getKey(), e.getValue()))
+                .collect(Collectors.toList());
         dto.setReportData(reportItems);
 
         return ResponseEntity.ok(dto);

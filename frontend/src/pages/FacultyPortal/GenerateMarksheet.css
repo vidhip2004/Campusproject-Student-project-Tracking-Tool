@@ -1,7 +1,11 @@
-/* Styles for GenerateMarksheet component */
+/* =========================================================
+   GENERATE MARKSHEET STYLES
+   Web Portal Controls + Official Printable Marksheet Document
+   ========================================================= */
+
 .gm-container {
   padding: 24px;
-  max-width: 1100px;
+  max-width: 1050px;
   margin: 0 auto;
 }
 
@@ -9,192 +13,614 @@
   margin-bottom: 24px;
 }
 
+.gm-header h1 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 6px 0;
+}
+
+.gm-header p {
+  color: #64748b;
+  margin: 0;
+  font-size: 15px;
+}
+
+.gm-error-alert {
+  padding: 12px 16px;
+  margin-bottom: 18px;
+  background: #fef2f2;
+  border-left: 4px solid #ef4444;
+  color: #991b1b;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+/* =========================================================
+   FACULTY FORM
+   ========================================================= */
+
 .gm-form {
   display: grid;
   gap: 18px;
-  background: #fff;
-  padding: 20px;
+  background: #ffffff;
+  padding: 24px;
   border-radius: 12px;
-  box-shadow: 0 12px 36px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
 }
 
 .gm-grid-2 {
   display: grid;
-  gap: 14px;
+  gap: 16px;
   grid-template-columns: 1fr 1fr;
 }
 
 .gm-grid-3 {
   display: grid;
-  gap: 14px;
+  gap: 16px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.gm-label {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  gap: 6px;
 }
 
 .gm-input {
   width: 100%;
-  margin-top: 8px;
-  padding: 10px;
+  padding: 10px 12px;
   border-radius: 8px;
-  border: 1px solid #ccc;
+  border: 1px solid #cbd5e1;
+  font-size: 14px;
+  color: #0f172a;
+  background: #ffffff;
   box-sizing: border-box;
+  transition: border-color 0.15s ease;
+}
+
+.gm-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 .gm-disabled {
-  background: #f7f7f7;
+  background: #f8fafc;
+  color: #475569;
+  cursor: not-allowed;
+}
+
+.gm-strong-input {
+  font-weight: 700;
+  color: #1e3a8a;
 }
 
 .gm-textarea {
   width: 100%;
-  margin-top: 8px;
-  padding: 10px;
+  padding: 10px 12px;
   border-radius: 8px;
-  border: 1px solid #ccc;
+  border: 1px solid #cbd5e1;
+  font-size: 14px;
+  color: #0f172a;
   box-sizing: border-box;
   resize: vertical;
+  font-family: inherit;
+}
+
+.gm-textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.gm-loading-text {
+  font-size: 14px;
+  color: #64748b;
+  margin: 8px 0;
 }
 
 .gm-actions {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-}
-
-.gm-actions-end {
-  justify-content: flex-end;
+  margin-top: 6px;
 }
 
 .gm-btn {
-  padding: 12px 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
   border-radius: 8px;
-  border: none;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
-  background: #e6eefc;
-  color: #000;
+  border: none;
+  transition: all 0.15s ease;
 }
 
 .gm-btn-primary {
-  background: #1f6feb;
-  color: #fff;
+  background: #1e40af;
+  color: #ffffff;
 }
 
-.gm-preview {
-  margin-top: 32px;
-  padding: 24px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 12px 36px rgba(0,0,0,0.08);
+.gm-btn-primary:hover:not(:disabled) {
+  background: #1d4ed8;
 }
 
-.gm-preview-header {
+.gm-btn-primary:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+.gm-btn-outline {
+  background: #ffffff;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+.gm-btn-outline:hover {
+  background: #f1f5f9;
+}
+
+/* =========================================================
+   PREVIEW WRAPPER & ACTION TOOLBAR (OUTSIDE THE PDF)
+   ========================================================= */
+
+.gm-preview-container {
+  margin-top: 36px;
+}
+
+.gm-preview-toolbar {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
+  background: #0f172a;
+  color: #ffffff;
+  padding: 14px 20px;
+  border-radius: 12px 12px 0 0;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
   gap: 16px;
+  flex-wrap: wrap;
 }
 
-.gm-preview-title {
-  margin: 0;
+.gm-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.gm-muted {
-  margin: 4px 0 0 0;
-  color: #555;
-}
-
-.gm-preview-date {
-  text-align: right;
-}
-
-.gm-strong {
-  margin: 0;
+.gm-toolbar-badge {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.15);
+  color: #e2e8f0;
+  font-size: 12px;
   font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
-.gm-small {
-  margin: 4px 0 0 0;
+.gm-toolbar-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #f8fafc;
 }
 
-.gm-preview-details {
-  margin-top: 24px;
-  display: grid;
-  gap: 18px;
-  grid-template-columns: 1fr 1fr;
+.gm-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.gm-table {
+.gm-btn-download {
+  background: #10b981;
+  color: #ffffff;
+  padding: 9px 18px;
+}
+
+.gm-btn-download:hover:not(:disabled) {
+  background: #059669;
+}
+
+.gm-btn-download:disabled {
+  background: #6ee7b7;
+  cursor: wait;
+}
+
+.gm-btn-print {
+  background: #3b82f6;
+  color: #ffffff;
+  padding: 9px 16px;
+}
+
+.gm-btn-print:hover {
+  background: #2563eb;
+}
+
+.gm-btn-secondary {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  padding: 9px 14px;
+}
+
+.gm-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.gm-paper-wrapper {
+  background: #e2e8f0;
+  padding: 30px 20px;
+  border-radius: 0 0 12px 12px;
+  overflow-x: auto;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* =========================================================
+   OFFICIAL PRINTABLE MARKSHEET DOCUMENT
+   (TARGET CONTAINER CONVERTED TO PDF VIA html2pdf)
+   ABSOLUTELY NO BUTTONS OR INTERACTIVE CONTROLS HERE
+   ========================================================= */
+
+.official-marksheet-document {
   width: 100%;
-  margin-top: 24px;
+  max-width: 780px;
+  margin: 0 auto;
+  background: #ffffff;
+  color: #0f172a;
+  padding: 34px 38px 28px 38px;
+  box-sizing: border-box;
+  border: 3px double #0f2b48;
+  position: relative;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.4;
+}
+
+/* 1. Header */
+.om-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.om-emblem {
+  flex-shrink: 0;
+}
+
+.om-emblem-crest {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: #0f2b48;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  border: 2px solid #d97706;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.om-header-text {
+  flex-grow: 1;
+  text-align: center;
+}
+
+.om-univ-name {
+  font-size: 21px;
+  font-weight: 800;
+  color: #0f2b48;
+  margin: 0 0 2px 0;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.om-dept-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e3a8a;
+  margin: 0 0 2px 0;
+}
+
+.om-program-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748b;
+  margin: 0;
+}
+
+.om-divider-double {
+  border-top: 3px double #0f2b48;
+  margin: 12px 0 10px 0;
+}
+
+.om-title-bar {
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.om-title-bar span {
+  display: inline-block;
+  background: #0f2b48;
+  color: #ffffff;
+  padding: 4px 20px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+/* 2. Metadata Section */
+.om-meta-section {
+  margin-bottom: 14px;
+}
+
+.om-meta-table {
+  width: 100%;
   border-collapse: collapse;
+  font-size: 12px;
 }
 
-.gm-table thead tr {
-  background: #f3f7ff;
+.om-meta-table td {
+  padding: 6px 10px;
+  border: 1px solid #cbd5e1;
 }
 
-.gm-table th,
-.gm-table td {
-  padding: 12px;
-  border: 1px solid #e0e0e0;
+.om-meta-label {
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 600;
+  width: 18%;
+}
+
+.om-meta-value {
+  color: #0f172a;
+  width: 32%;
+}
+
+.om-bold {
+  font-weight: 700;
+  color: #0f2b48;
+}
+
+/* 3. Marks Table */
+.om-table-section {
+  margin-bottom: 14px;
+}
+
+.om-marks-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.om-marks-table th {
+  background: #f1f5f9;
+  color: #0f2b48;
+  font-weight: 700;
+  padding: 7px 10px;
+  border: 1px solid #cbd5e1;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+
+.om-marks-table td {
+  padding: 6px 10px;
+  border: 1px solid #cbd5e1;
+  color: #1e293b;
+}
+
+.om-col-sr {
+  width: 8%;
+  text-align: center;
+}
+
+.om-col-comp {
+  width: 54%;
   text-align: left;
 }
 
-.gm-right {
+.om-col-max {
+  width: 19%;
   text-align: right;
 }
 
-.gm-total-row {
-  font-weight: 700;
+.om-col-obt {
+  width: 19%;
+  text-align: right;
 }
 
-.gm-summary {
+.om-text-center {
+  text-align: center;
+}
+
+.om-text-right {
+  text-align: right;
+}
+
+.om-comp-title {
+  font-weight: 500;
+}
+
+.om-total-row {
+  background: #f8fafc;
+}
+
+.om-total-row td {
+  border-top: 2px solid #0f2b48;
+  border-bottom: 2px solid #0f2b48;
+  font-size: 12px;
+}
+
+.om-total-label {
+  font-weight: 800;
+  text-align: right;
+  letter-spacing: 1px;
+  color: #0f2b48;
+}
+
+.om-total-obtained {
+  color: #0f2b48;
+  font-size: 13px;
+}
+
+/* 4. Performance Summary */
+.om-summary-grid {
   display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 12px;
-  margin-top: 20px;
-  grid-template-columns: 1fr 1fr;
+  margin-bottom: 14px;
 }
 
-.gm-no-margin {
+.om-summary-card {
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  padding: 8px 12px;
+  text-align: center;
+  border-radius: 4px;
+}
+
+.om-summary-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 3px;
+}
+
+.om-summary-value {
+  display: block;
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f2b48;
+}
+
+.om-result-badge.pass {
+  color: #15803d;
+}
+
+.om-result-badge.fail {
+  color: #b91c1c;
+}
+
+/* 5. Remarks */
+.om-remarks-box {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-bottom: 24px;
+}
+
+.om-remarks-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  letter-spacing: 0.5px;
+}
+
+.om-remarks-content {
+  font-size: 11.5px;
+  color: #334155;
+  font-style: italic;
+  min-height: 24px;
+}
+
+/* 6. Signature Area */
+.om-signature-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 28px;
+  margin-bottom: 14px;
+}
+
+.om-sig-block {
+  text-align: center;
+}
+
+.om-sig-space {
+  height: 38px;
+}
+
+.om-sig-line {
+  border-top: 1px solid #334155;
+  margin: 0 10px 6px 10px;
+}
+
+.om-sig-name {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #0f2b48;
   margin: 0;
 }
 
-.gm-result.pass {
-  margin: 6px 0 0 0;
-  color: #117a37;
+.om-sig-designation {
+  font-size: 10px;
+  color: #64748b;
+  margin: 2px 0 0 0;
 }
 
-.gm-result.fail {
-  margin: 6px 0 0 0;
-  color: #b52828;
+/* 7. Footer */
+.om-footer {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 8px;
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 9.5px;
+  color: #94a3b8;
 }
 
-.gm-remarks-block {
-  margin-top: 24px;
-}
-
-.gm-remarks {
-  margin: 8px 0 0 0;
-  color: #444;
-}
-
+/* =========================================================
+   PRINT STYLES
+   ========================================================= */
 
 @media print {
+  body {
+    background: #ffffff !important;
+  }
+
   body * {
     visibility: hidden;
   }
 
-  .gm-preview,
-  .gm-preview * {
+  .official-marksheet-document,
+  .official-marksheet-document * {
     visibility: visible;
   }
 
-  .gm-preview {
+  .official-marksheet-document {
     position: absolute;
     left: 0;
     top: 0;
-    width: 100%;
+    width: 100% !important;
+    max-width: 100% !important;
+    border: none !important;
+    padding: 10mm !important;
+    box-shadow: none !important;
   }
 
-  .gm-actions {
+  .gm-preview-toolbar,
+  .gm-header,
+  .gm-form,
+  .portal .sidebar,
+  .portal .topbar {
     display: none !important;
   }
 }

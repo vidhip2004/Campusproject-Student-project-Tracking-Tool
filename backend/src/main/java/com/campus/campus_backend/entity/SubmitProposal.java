@@ -47,6 +47,8 @@ public class SubmitProposal {
     private String proposalFile;
 
     private String status;
+    @Column(name = "comments", columnDefinition = "TEXT")
+    private String comments;
 
     public SubmitProposal() {
     }
@@ -161,5 +163,13 @@ public class SubmitProposal {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getComments() {
+        return comments;
+    }
+
+    public void setComments(String comments) {
+        this.comments = comments;
     }
 }

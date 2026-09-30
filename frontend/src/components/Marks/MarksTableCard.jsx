@@ -32,13 +32,13 @@ function MarksTableCard({ marks }) {
           <tr>
             <td>Weekly Progress</td>
             <td>{marks?.weeklyProgressMarks ?? 0}</td>
-            <td>20</td>
+            <td>30</td>
           </tr>
 
           <tr>
             <td>Final Report</td>
             <td>{marks?.finalReportMarks ?? 0}</td>
-            <td>20</td>
+            <td>10</td>
           </tr>
 
           <tr>
